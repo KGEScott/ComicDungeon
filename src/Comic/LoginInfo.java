@@ -2,7 +2,7 @@ package Comic;
 
 public class LoginInfo {
 	public static String uName;
-	public static char[] uPass;
+	public static String uPass;
 	public static String nFirstName;
 	private static String nLastName;
 	private static String newEmail;
@@ -10,19 +10,27 @@ public class LoginInfo {
 	public static String dayC;
 	private static String yearC;
 	private static String newNameCA;
-	private static char[] newPassCA;
-	public static char[] newRPassCA;
+	private static String newPassCA;
+	public static String newRPassCA;
 	private static String newPrevPass;
 	private static String newNowPass;
 	private static String getPublisher;
 	private static String idView;
 	private static String idEnter;
-	private static String idSeries;
+	private static String seriesID;
 	private static String currentScrollPanel;
 	private static String publisherName;
+	private static String publisherID;
 	private static String seriesName;
 	private static String comicsID;
 	private static String comicsIssue;
+	private static int q1Index;
+	private static int q2Index;
+	private static int q3Index;
+	private static String q1Answer;
+	private static String q2Answer;
+	private static String q3Answer;
+	private static int userID;
 
 	// Login Screen
 	public static void setUsername(String uName) {
@@ -33,11 +41,11 @@ public class LoginInfo {
 		return uName;
 	}
 
-	public static void setPass(char[] uPass) {
+	public static void setPass(String uPass) {
 		LoginInfo.uPass = uPass;
 	}
 
-	public static char[] getPass() {
+	public static String getPass() {
 		return uPass;
 	}
 
@@ -106,20 +114,20 @@ public class LoginInfo {
 	}
 
 	// create account password
-	public static void setPassCA(char[] newPassCA) {
+	public static void setPassCA(String newPassCA) {
 		LoginInfo.newPassCA = newPassCA;
 	}
 
-	public static char[] getPassCA() {
+	public static String getPassCA() {
 		return newPassCA;
 	}
 
 	// create account retype password
-	public static void setRetypePassCA(char[] newRPassCA) {
+	public static void setRetypePassCA(String newRPassCA) {
 		LoginInfo.newRPassCA = newRPassCA;
 	}
 
-	public static char[] getRetypePassCA() {
+	public static String getRetypePassCA() {
 		return newRPassCA;
 	}
 
@@ -165,12 +173,12 @@ public class LoginInfo {
 		return idEnter;
 	}
 
-	public static void setIdSeries(String idSeries) {
-		LoginInfo.idSeries = idSeries;
+	public static void setSeriesID(String seriesID) {
+		LoginInfo.seriesID = seriesID;
 	}
 
-	public static String getIdSeries() {
-		return idSeries;
+	public static String getSeriesID() {
+		return seriesID;
 	}
 
 	public static String getCurrentScrollPanel() {
@@ -187,6 +195,14 @@ public class LoginInfo {
 
 	public static void setPublisherName(String publisherName) {
 		LoginInfo.publisherName = publisherName;
+	}
+
+	public static String getPublisherID() {
+		return publisherID;
+	}
+
+	public static void setPublisherID(String publisherID) {
+		LoginInfo.publisherID = publisherID;
 	}
 
 	public static String getSeriesName() {
@@ -211,5 +227,59 @@ public class LoginInfo {
 
 	public static void setComicsIssue(String comicsIssue) {
 		LoginInfo.comicsIssue = comicsIssue;
+	}
+
+	public static int getQ1Index() {
+		return q1Index;
+	}
+
+	public static void setQ1Index(int q1Index) {
+		LoginInfo.q1Index = q1Index;
+	}
+
+	public static int getQ2Index() {
+		return q2Index;
+	}
+
+	public static void setQ2Index(int q2Index) {
+		LoginInfo.q2Index = q2Index;
+	}
+
+	public static int getQ3Index() {
+		return q3Index;
+	}
+
+	public static void setQ3Index(int q3Index) {
+		LoginInfo.q3Index = q3Index;
+	}
+
+	public static String getQ1Answer() {
+		return q1Answer;
+	}
+
+	public static void setQ1Answer(String q1Answer) {
+		LoginInfo.q1Answer = q1Answer;
+	}
+
+	public static String getQ2Answer() {
+		return q2Answer;
+	}
+
+	public static void setQ2Answer(String q2Answer) {
+		LoginInfo.q2Answer = q2Answer;
+	}
+
+	public static String getQ3Answer() {
+		return q3Answer;
+	}
+
+	public static void setQ3Answer(String q3Answer) {
+		LoginInfo.q3Answer = q3Answer;
+	}
+	public static int getUserID() {
+		return userID;
+	}
+	public static void setUserID(int userID) {
+		LoginInfo.userID = userID;
 	}
 }

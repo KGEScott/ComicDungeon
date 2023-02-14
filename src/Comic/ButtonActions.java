@@ -12,14 +12,17 @@ public class ButtonActions extends Login {
 	static ChangePassword changeP = new ChangePassword();
 
 	public static boolean ButtonActionsSubmit() {
+		String username = LoginInfo.getUsername();
+		String userPass = LoginInfo.getPass();
 
-		boolean nameAndPassInDB = DBConnection.checkUNnPass(LoginInfo.getUsername(), LoginInfo.getPass());
+		boolean nameAndPassInDB = DBConnection.checkUNnPass(username, userPass);
+
 		if (nameAndPassInDB) {
 			UserInterface.main(null);
 			return true;
 		} else {
 			JOptionPane.showMessageDialog(null,
-					"The username or Password may be wrong, please try again or create a new account.");
+					"The username or Password may be incorrect, please try again or create a new account.");
 			return false;
 		}
 	}
@@ -46,7 +49,8 @@ public class ButtonActions extends Login {
 		} else {
 			DBConnection.insertCA(LoginInfo.getUsernameCA(), LoginInfo.getFirstName(), LoginInfo.getLastName(),
 					LoginInfo.getEmail(), LoginInfo.getYear(), LoginInfo.getMonth(), LoginInfo.getDay(),
-					LoginInfo.getPassCA());
+					LoginInfo.getPassCA(), LoginInfo.getQ1Index(), LoginInfo.getQ1Answer(), LoginInfo.getQ2Index(),
+					LoginInfo.getQ2Answer(), LoginInfo.getQ3Index(), LoginInfo.getQ3Answer());
 			JOptionPane.showMessageDialog(null, "User information has been saved to the database.");
 		}
 	}
@@ -66,5 +70,36 @@ public class ButtonActions extends Login {
 
 	public static void ButtonActionsSearchPublishers(String getPublisherNameToSearch) {
 		DBConnection.pullPublisher(getPublisherNameToSearch);
+	}
+	public static boolean BASubmitForgotPass() {
+		String username = LoginInfo.getUsername();
+		String email = LoginInfo.getEmail();
+
+		boolean nameAndEmailInDB = DBConnection.checkUserNameAndEmail(username, email);
+
+		if (nameAndEmailInDB) {
+			DBConnection.pullQuestions(LoginInfo.getUserID());
+			return true;
+		} else {
+			JOptionPane.showMessageDialog(null,
+					"Username or email is not in the database.");
+			return false;
+		}
+	}
+	public static boolean BASubmitSecurityQuestions() {
+		int id = LoginInfo.getUserID();
+		String q1 = LoginInfo.getQ1Answer();
+		String q2 = LoginInfo.getQ2Answer();
+		String q3 = LoginInfo.getQ3Answer();
+
+		boolean answersCorrect = DBConnection.checkSecurityQuestions(id, q1, q2, q3);
+
+		if (answersCorrect) {
+			return true;
+		} else {
+			JOptionPane.showMessageDialog(null,
+					"One or more of your security questions may be wrong.");
+			return false;
+		}
 	}
 }

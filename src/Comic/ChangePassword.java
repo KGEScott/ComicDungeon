@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -130,8 +129,9 @@ public class ChangePassword extends JFrame {
 		confirmButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				oldPass = oldPassTextField.getText();
-				newPass = passTextField.getText();
+				String newPassS = passTextField.getText();
 				LoginInfo.setPrevPass(oldPass);
+				newPass = BCrypt.hashpw(newPassS, BCrypt.gensalt());
 				LoginInfo.setNewPass(newPass);
 				if (ButtonActions.ButtonActionsSubCPW() == true) {
 					dispose();

@@ -41,7 +41,7 @@ public class UserInterface extends JFrame {
 	public static String getPublisherNameToSearch;
 	public static String idView;
 	public static String idEnter;
-	public static String idSeries;
+	public static String seriesID;
 	public static String currentScrollPanel;
 	public static String publisherName;
 	public static String seriesName;
@@ -128,20 +128,19 @@ public class UserInterface extends JFrame {
 		panel_2.add(myComicsPanel, "My Comics Panel");
 		myComicsPanel.setLayout(null);
 
-		JTextArea txtrTestingMycomicspanel = new JTextArea();
-		txtrTestingMycomicspanel.setText("Testing MyComicsPanel");
-		txtrTestingMycomicspanel.setBounds(393, 255, 300, 97);
-		myComicsPanel.add(txtrTestingMycomicspanel);
-
 		JPanel searchComicsPanel = new JPanel();
 		searchComicsPanel.setBackground(new Color(38, 38, 38));
 		panel_2.add(searchComicsPanel, "Search Comics Panel");
 		searchComicsPanel.setLayout(null);
 
-		JTextArea txtrTestingSearchComicsPanel = new JTextArea();
-		txtrTestingSearchComicsPanel.setText("Testing searchComicsPanel");
-		txtrTestingSearchComicsPanel.setBounds(393, 255, 300, 97);
-		searchComicsPanel.add(txtrTestingSearchComicsPanel);
+		JTextField getSeriesName = new JTextField();
+		getSeriesName.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
+		getSeriesName.setBorder(emptyBorder);
+		getSeriesName.setForeground(Color.WHITE);
+		getSeriesName.setBackground(new Color(73, 73, 73));
+		getSeriesName.setBounds(251, 16, 216, 20);
+		searchComicsPanel.add(getSeriesName);
+		getSeriesName.setColumns(10);
 
 		JTextField getPublisherName = new JTextField();
 		getPublisherName.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
@@ -151,6 +150,11 @@ public class UserInterface extends JFrame {
 		getPublisherName.setBounds(251, 16, 216, 20);
 		searchPublishersPanel.add(getPublisherName);
 		getPublisherName.setColumns(10);
+
+		JButton seriesSearchBtn = new JButton("Search");
+		Properties.setLoginButtonProperties(seriesSearchBtn, 477, 16, 89, 20);
+		searchComicsPanel.add(seriesSearchBtn);
+		searchComicsPanel.getRootPane().setDefaultButton(seriesSearchBtn);
 
 		JButton publisherSearchBtn = new JButton("Search");
 		Properties.setLoginButtonProperties(publisherSearchBtn, 477, 16, 89, 20);
@@ -187,14 +191,14 @@ public class UserInterface extends JFrame {
 		Properties.setMainButtonProperties(userComics);
 		userComics.setModel(new FixedStateButtonModel());
 		userComics.setBackground(new Color(3, 66, 80));
-		userComics.setBounds(0, 68, 244, 52);
+		userComics.setBounds(0, 125, 244, 52);
 		panel_1.add(userComics);
 
 		JButton searchComics = new JButton("Search Comics");
 		Properties.setMainButtonProperties(searchComics);
 		searchComics.setModel(new FixedStateButtonModel());
 		searchComics.setBackground(new Color(3, 66, 80));
-		searchComics.setBounds(0, 125, 244, 52);
+		searchComics.setBounds(0, 68, 244, 52);
 		panel_1.add(searchComics);
 
 		JButton accountButton = new JButton("Account");
@@ -210,6 +214,20 @@ public class UserInterface extends JFrame {
 		signOut.setBackground(new Color(3, 66, 80));
 		signOut.setBounds(0, 725, 244, 52);
 		panel_1.add(signOut);
+
+		// search Series Search pane
+		JScrollPane searchSeriesScroll = new JScrollPane();
+		searchSeriesScroll.setBorder(emptyBorder);
+		Properties.setPanelProperties(searchSeriesScroll);
+		searchSeriesScroll.getViewport().setBackground(new Color(38, 38, 38));
+		searchComicsPanel.add(searchSeriesScroll);
+
+		// search series comic pane
+		JScrollPane searchSeriesScroll2 = new JScrollPane();
+		searchSeriesScroll2.setBorder(emptyBorder);
+		Properties.setPanelProperties(searchSeriesScroll2);
+		searchSeriesScroll2.getViewport().setBackground(new Color(38, 38, 38));
+		searchComicsPanel.add(searchSeriesScroll2);
 
 		// publisher pane
 		JScrollPane scrollPane = new JScrollPane();
@@ -232,8 +250,17 @@ public class UserInterface extends JFrame {
 		scrollPane3.getViewport().setBackground(new Color(38, 38, 38));
 		searchPublishersPanel.add(scrollPane3);
 
+		JButton seriesBackBtn = new JButton("Back");
+		Properties.setLoginButtonProperties(seriesBackBtn, 100, 110, 89, 20);
+
 		JButton backBtn = new JButton("Back");
 		Properties.setLoginButtonProperties(backBtn, 100, 110, 89, 20);
+
+		JTable searchSeriesTable = new JTable();
+		searchSeriesScroll.setViewportView(searchSeriesTable);
+
+		JTable searchSeriesTable2 = new JTable();
+		searchSeriesScroll2.setViewportView(searchSeriesTable2);
 
 		JTable searchTable = new JTable();
 		scrollPane.setViewportView(searchTable);
@@ -249,6 +276,20 @@ public class UserInterface extends JFrame {
 				ChangePassword.main(null);
 			}
 		});
+
+		searchSeriesTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				clickSeriesSearchTable(searchComicsPanel, searchSeriesScroll, searchSeriesScroll2, searchSeriesTable,
+						searchSeriesTable2, seriesBackBtn, e);
+			}
+		});
+		// series table mouse clickies
+		searchSeriesTable2.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				clickComicsTable2(searchComicsPanel, searchSeriesTable, searchSeriesTable2, seriesBackBtn, e);
+			}
+		});
+
 		// search table logic that gets information for series and outputs the values
 		// based on where clicked.
 		searchTable.addMouseListener(new MouseAdapter() {
@@ -267,6 +308,15 @@ public class UserInterface extends JFrame {
 		comicsTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				clickComicsTable(searchPublishersPanel, seriesTable, comicsTable, backBtn, e);
+			}
+		});
+
+		getSeriesName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && !getSeriesName.getText().isEmpty()) {
+					seriesSearchBtn.doClick();
+				}
 			}
 		});
 
@@ -303,6 +353,9 @@ public class UserInterface extends JFrame {
 				accountButton.setBackground(new Color(3, 66, 80));
 				searchComics.setBackground(new Color(3, 66, 80));
 				searchPublishers.setBackground(new Color(3, 66, 80));
+				UserCollection userCollectionPanel = new UserCollection();
+				myComicsPanel.add(userCollectionPanel);
+
 			}
 		});
 		searchComics.addActionListener(new ActionListener() {
@@ -330,6 +383,17 @@ public class UserInterface extends JFrame {
 				dispose();
 			}
 		});
+
+		seriesBackBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchSeriesScroll2.setViewportView(null);
+				searchSeriesTable.setVisible(true);
+				searchSeriesScroll.setViewportView(searchSeriesTable);
+				clickSeriesSearchBtn(searchComicsPanel, getSeriesName, searchSeriesScroll, searchSeriesScroll2,
+						searchSeriesTable, searchSeriesTable2, seriesBackBtn);
+			}
+		});
+
 		backBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (currentScrollPanel == "Series Panel") {
@@ -345,6 +409,18 @@ public class UserInterface extends JFrame {
 				}
 			}
 		});
+
+		seriesSearchBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clickSeriesSearchBtn(searchComicsPanel, getSeriesName, searchSeriesScroll, searchSeriesScroll2,
+						searchSeriesTable, searchSeriesTable2, seriesBackBtn);
+				searchSeriesTable.setVisible(true);
+				searchSeriesTable2.setVisible(false);
+				searchSeriesScroll.setViewportView(searchSeriesTable);
+
+			}
+		});
+
 		// on search passes value of search text field to dbconnection it assigns values
 		// to table from dbconnection and sets up buttons to move to series
 		publisherSearchBtn.addActionListener(new ActionListener() {
@@ -373,6 +449,94 @@ public class UserInterface extends JFrame {
 		}
 	}
 
+	private void clickSeriesSearchTable(JPanel searchComicsPanel, JScrollPane searchSeriesScroll,
+			JScrollPane searchSeriesScroll2, JTable searchSeriesTable, JTable searchSeriesTable2, JButton seriesBackBtn,
+			MouseEvent e) {
+		int row = searchSeriesTable.rowAtPoint(e.getPoint());
+		int col = searchSeriesTable.columnAtPoint(e.getPoint());
+		if (row >= 0 && col == 0) {
+			// Get the value of the 4th column of the selected row
+			String selectedValue = (String) searchSeriesTable.getValueAt(row, 4);
+			LoginInfo.setIdView(selectedValue);
+			List<Map<String, String>> publisherInfo = DBConnection.pullPublisherInfo(selectedValue);
+			if (publisherInfo != null && !publisherInfo.isEmpty()) {
+				Map<String, String> publisherInformation = publisherInfo.get(0);
+				String publisherName = publisherInformation.get("name");
+				LoginInfo.setPublisherName(publisherName);
+			}
+			// view start here
+			String selectedName = (String) searchSeriesTable.getValueAt(row, 2);
+			seriesName = selectedName;
+			LoginInfo.setSeriesName(seriesName);
+			SeriesInfo.main(null);
+		}
+		if (row >= 0 && col == 1) {
+			String pubID = (String) searchSeriesTable.getValueAt(row, 4);
+			searchComicsPanel.add(seriesBackBtn);
+			String selectedValue = (String) searchSeriesTable.getValueAt(row, 3);
+			String selectedName = (String) searchSeriesTable.getValueAt(row, 2);
+			LoginInfo.setPublisherID(pubID);
+			LoginInfo.setSeriesName(selectedName);
+			LoginInfo.setSeriesID(selectedValue);
+			DBConnection.pullComics(selectedValue);
+
+			// enter starts here
+			// enter to comics
+
+			searchSeriesTable.setVisible(false);
+			// searchSeriesScroll.setViewportView(null);
+			searchSeriesTable2.setVisible(true);
+			repaint();
+			revalidate();
+			List<Map<String, String>> queriedIssues = DBConnection.pullComics(selectedValue);
+
+			// initialize the columns and rows of the table here
+			// Set the number of rows in the table based on the number of elements in the
+			// queriedPublisher list
+			int numRows = queriedIssues.size();
+			Object[][] data = new Object[numRows][5];
+			for (int i = 0; i < numRows; i++) {
+				data[i][0] = "View";
+				data[i][1] = queriedIssues.get(i).get("volume");
+				data[i][2] = queriedIssues.get(i).get("number");
+				data[i][3] = queriedIssues.get(i).get("publication_date");
+				data[i][4] = queriedIssues.get(i).get("id");
+			}
+
+			searchSeriesTable2.setModel(
+					new DefaultTableModel(data, new String[] { "Comic Info", "Volume", "Number", "Pub. Date", "id" }) {
+						/**
+						 * 
+						 */
+						private static final long serialVersionUID = 1L;
+						@SuppressWarnings("rawtypes")
+						Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class,
+								String.class };
+
+						@SuppressWarnings({ "unchecked", "rawtypes" })
+						public Class getColumnClass(int columnIndex) {
+							return columnTypes[columnIndex];
+						}
+
+						boolean[] columnEditables = new boolean[] { false, false, false, false, false };
+
+						public boolean isCellEditable(int row, int column) {
+							return columnEditables[column];
+						}
+					});
+			searchSeriesTable2.getColumnModel().getColumn(2).setPreferredWidth(320);
+			searchSeriesTable2.getColumnModel().getColumn(3).setResizable(false);
+			searchSeriesTable2.getColumnModel().getColumn(3).setPreferredWidth(150);
+			searchSeriesTable2.getColumnModel().getColumn(4).setResizable(false);
+			searchSeriesTable2.getColumnModel().getColumn(4).setPreferredWidth(50);
+
+			// set the table properties
+			Properties.setTableProperties(searchSeriesTable2);
+			searchSeriesScroll.setViewportView(searchSeriesTable2);
+
+		}
+	}
+
 	private void clickSearchTable(JPanel searchPublishersPanel, JScrollPane scrollPane, JScrollPane scrollPane2,
 			JTable searchTable, JTable seriesTable, JButton backBtn, MouseEvent e) {
 		currentScrollPanel = "Series Panel";
@@ -396,6 +560,7 @@ public class UserInterface extends JFrame {
 			String selectedValue = (String) searchTable.getValueAt(row, 3);
 			String selectedName = (String) searchTable.getValueAt(row, 2);
 			LoginInfo.setPublisherName(selectedName);
+			LoginInfo.setPublisherID(selectedValue);
 			LoginInfo.setIdEnter(selectedValue);
 			DBConnection.pullSeries(selectedValue);
 			// enter starts here
@@ -460,7 +625,7 @@ public class UserInterface extends JFrame {
 			String selectedValue = (String) seriesTable.getValueAt(row, 3);
 			String selectedName = (String) seriesTable.getValueAt(row, 2);
 			LoginInfo.setSeriesName(selectedName);
-			LoginInfo.setIdEnter(selectedValue);
+			LoginInfo.setSeriesID(selectedValue);
 			DBConnection.pullComics(selectedValue);
 			// enter starts here
 			// enter to comics
@@ -533,6 +698,71 @@ public class UserInterface extends JFrame {
 			ComicInfo.main(null);
 
 		}
+	}
+
+	private void clickComicsTable2(JPanel searchComicsPanel, JTable searchSeriesTable, JTable searchSeriesTable2,
+			JButton seriesBackBtn, MouseEvent e) {
+		int row = searchSeriesTable2.rowAtPoint(e.getPoint());
+		int col = searchSeriesTable2.columnAtPoint(e.getPoint());
+		if (row >= 0 && col == 0) {
+			// Get the value of the 4th column of the selected row
+			String selectedValue = (String) searchSeriesTable2.getValueAt(row, 4);
+			comicsID = selectedValue;
+			LoginInfo.setComicsID(comicsID);
+			DBConnection.pullComicsInfo(selectedValue);
+			// view start here
+			String selectedIssue = (String) searchSeriesTable2.getValueAt(row, 2);
+			comicsIssue = selectedIssue;
+			LoginInfo.setComicsIssue(comicsIssue);
+			ComicInfo.main(null);
+
+		}
+	}
+
+	private void clickSeriesSearchBtn(JPanel searchComicsPanel, JTextField getSeriesName,
+			JScrollPane searchSeriesScroll, JScrollPane searchSeriesScroll2, JTable searchSeriesTable,
+			JTable searchSeriesTable2, JButton seriesBackBtn) {
+		searchSeriesScroll.setVisible(true);
+		searchSeriesScroll2.setVisible(false);
+		String searchInfo = getSeriesName.getText();
+		List<Map<String, String>> queriedSeries = DBConnection.pullSeriesName(searchInfo);
+		// initialize the columns and rows of the table here
+		// Set the number of rows in the table based on the number of elements in the
+		// queriedPublisher list
+		int numRows = queriedSeries.size();
+		Object[][] data = new Object[numRows][5];
+		for (int i = 0; i < numRows; i++) {
+			data[i][2] = queriedSeries.get(i).get("name");
+			data[i][0] = "View";
+			data[i][1] = "Enter";
+			data[i][3] = queriedSeries.get(i).get("id");
+			data[i][4] = queriedSeries.get(i).get("publisher_id");
+		}
+		searchSeriesTable.setModel(
+				new DefaultTableModel(data, new String[] { "Series Info", "Comics", "Series", "id", "publisher_id" }) {
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+					@SuppressWarnings("rawtypes")
+					Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class,
+							String.class };
+
+					@SuppressWarnings({ "unchecked", "rawtypes" })
+					public Class getColumnClass(int columnIndex) {
+						return columnTypes[columnIndex];
+					}
+
+					boolean[] columnEditables = new boolean[] { false, false, false, false, false };
+
+					public boolean isCellEditable(int row, int column) {
+						return columnEditables[column];
+					}
+				});
+		searchSeriesTable.getColumnModel().getColumn(2).setPreferredWidth(520);
+		Properties.setTableProperties(searchSeriesTable);
+		searchComicsPanel.remove(seriesBackBtn);
+		searchSeriesScroll.setViewportView(searchSeriesTable);
 	}
 
 	private void clickPubSearchBtn(JPanel publisherSearchPanel, JTextField getPublisherName, JScrollPane scrollPane,

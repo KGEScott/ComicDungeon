@@ -64,7 +64,7 @@ public class SeriesInfo extends JFrame {
 		List<Map<String, String>> seriesInfo = DBConnection.pullSeriesInfo(LoginInfo.getIdView());
 		JTextArea seriesInfoTxt = new JTextArea();
 
-		String id = null;
+		//String id = null;
 		String name = null;
 		String year_began = null;
 		String year_ended = null;
@@ -77,9 +77,10 @@ public class SeriesInfo extends JFrame {
 
 		for (Map<String, String> information : seriesInfo) {
 			for (Map.Entry<String, String> entry : information.entrySet()) {
-				if (entry.getKey().equals("id")) {
-					id = entry.getValue();
-				} else if (entry.getKey().equals("name")) {
+//				if (entry.getKey().equals("id")) {
+//					id = entry.getValue();
+//				}
+				if (entry.getKey().equals("name")) {
 					name = entry.getValue();
 				} else if (entry.getKey().equals("year_began")) {
 					year_began = entry.getValue();

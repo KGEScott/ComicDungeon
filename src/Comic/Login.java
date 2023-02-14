@@ -24,7 +24,7 @@ public class Login extends JFrame {
 		 */
 	private static final long serialVersionUID = -2093583572269751429L;
 	public static String userName;
-	private static char[] userPass;
+	private static String userPass;
 	private JPanel contentPane;
 
 	/**
@@ -134,7 +134,8 @@ public class Login extends JFrame {
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				userName = userNameField.getText();
-				userPass = passwordField.getPassword();
+				char[] charPass = passwordField.getPassword();
+				userPass = new String(charPass);
 				LoginInfo.setUsername(userName);
 				LoginInfo.setPass(userPass);
 
@@ -142,7 +143,6 @@ public class Login extends JFrame {
 					dispose();
 				} else
 					passwordField.setText("");
-
 			}
 		});
 		createAccount.addActionListener(new ActionListener() {

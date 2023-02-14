@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -38,9 +37,12 @@ public class CreateAccount extends JFrame {
 	protected static String day;
 	protected static String year;
 	protected static String userNameCA;
-	protected static char[] userPassCA;
-	protected static char[] retypePassCA;
+	protected static String userPassCA;
+	protected static String retypePassCA;
 	private JPanel contentPane;
+	private static String q1Answers;
+	private static String q2Answers;
+	private static String q3Answers;
 
 	/**
 	 * Launch the application.
@@ -72,27 +74,27 @@ public class CreateAccount extends JFrame {
 		setTitle("Comic Dungeon Create Account");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 400, 500);
+		setBounds(100, 100, 400, 557);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(46, 46, 46));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JPanel basePanel = new JPanel();
-		basePanel.setBackground(new Color(46, 46, 46));
-		basePanel.setBounds(30, 33, 327, 394);
-		contentPane.add(basePanel);
-		basePanel.setLayout(null);
+		JPanel FieldPanel = new JPanel();
+		FieldPanel.setBackground(new Color(46, 46, 46));
+		FieldPanel.setBounds(10, 11, 364, 496);
+		contentPane.add(FieldPanel);
+		FieldPanel.setLayout(null);
 
 		JTextField firstNameField = new JTextField();
-		firstNameField.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		firstNameField.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		firstNameField.setBorder(emptyBorder);
 		firstNameField.setForeground(Color.WHITE);
 		firstNameField.setColumns(20);
 		firstNameField.setBackground(new Color(73, 73, 73));
-		firstNameField.setBounds(103, 14, 198, 22);
-		basePanel.add(firstNameField);
+		firstNameField.setBounds(103, 14, 251, 22);
+		FieldPanel.add(firstNameField);
 
 		JTextArea firstName = new JTextArea();
 		firstName.setEditable(false);
@@ -102,7 +104,7 @@ public class CreateAccount extends JFrame {
 		firstName.setForeground(Color.WHITE);
 		firstName.setBackground(new Color(46, 46, 46));
 		firstName.setBounds(10, 11, 96, 31);
-		basePanel.add(firstName);
+		FieldPanel.add(firstName);
 
 		JTextArea LastName = new JTextArea();
 		LastName.setEditable(false);
@@ -111,26 +113,26 @@ public class CreateAccount extends JFrame {
 		LastName.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		LastName.setBackground(new Color(46, 46, 46));
 		LastName.setText("Last Name: ");
-		LastName.setBounds(10, 53, 89, 22);
-		basePanel.add(LastName);
+		LastName.setBounds(10, 44, 89, 22);
+		FieldPanel.add(LastName);
 
 		JTextField lastNameField = new JTextField();
-		lastNameField.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		lastNameField.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		lastNameField.setBorder(emptyBorder);
 		lastNameField.setForeground(Color.WHITE);
 		lastNameField.setColumns(30);
 		lastNameField.setBackground(new Color(73, 73, 73));
-		lastNameField.setBounds(103, 53, 198, 22);
-		basePanel.add(lastNameField);
+		lastNameField.setBounds(103, 47, 251, 22);
+		FieldPanel.add(lastNameField);
 
 		JTextField emailField = new JTextField();
-		emailField.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		emailField.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		emailField.setBorder(emptyBorder);
 		emailField.setForeground(Color.WHITE);
 		emailField.setColumns(40);
 		emailField.setBackground(new Color(73, 73, 73));
-		emailField.setBounds(103, 91, 198, 22);
-		basePanel.add(emailField);
+		emailField.setBounds(103, 80, 251, 22);
+		FieldPanel.add(emailField);
 		emailField.setColumns(10);
 
 		JTextArea emailTxtArea = new JTextArea();
@@ -140,8 +142,8 @@ public class CreateAccount extends JFrame {
 		emailTxtArea.setBackground(new Color(46, 46, 46));
 		emailTxtArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		emailTxtArea.setText("Email:");
-		emailTxtArea.setBounds(10, 86, 73, 22);
-		basePanel.add(emailTxtArea);
+		emailTxtArea.setBounds(10, 77, 73, 22);
+		FieldPanel.add(emailTxtArea);
 
 		JTextArea DOBTextArea = new JTextArea();
 		DOBTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
@@ -150,67 +152,67 @@ public class CreateAccount extends JFrame {
 		DOBTextArea.setEditable(false);
 		DOBTextArea.setFocusable(false);
 		DOBTextArea.setText("D.O.B.:");
-		DOBTextArea.setBounds(10, 122, 73, 22);
-		basePanel.add(DOBTextArea);
+		DOBTextArea.setBounds(10, 110, 73, 22);
+		FieldPanel.add(DOBTextArea);
 
-		JTextArea txtrUsername = new JTextArea();
-		txtrUsername.setForeground(Color.WHITE);
-		txtrUsername.setEditable(false);
-		txtrUsername.setFocusable(false);
-		txtrUsername.setBackground(new Color(46, 46, 46));
-		txtrUsername.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
-		txtrUsername.setText("Username: ");
-		txtrUsername.setBounds(10, 162, 81, 22);
-		basePanel.add(txtrUsername);
+		JTextArea usernameTextArea = new JTextArea();
+		usernameTextArea.setForeground(Color.WHITE);
+		usernameTextArea.setEditable(false);
+		usernameTextArea.setFocusable(false);
+		usernameTextArea.setBackground(new Color(46, 46, 46));
+		usernameTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		usernameTextArea.setText("Username: ");
+		usernameTextArea.setBounds(10, 143, 81, 22);
+		FieldPanel.add(usernameTextArea);
 
 		JTextField userNameField = new JTextField();
-		userNameField.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		userNameField.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		userNameField.setBorder(emptyBorder);
 		userNameField.setForeground(Color.WHITE);
 		userNameField.setColumns(40);
 		userNameField.setBackground(new Color(73, 73, 73));
-		userNameField.setBounds(103, 166, 198, 22);
-		basePanel.add(userNameField);
+		userNameField.setBounds(103, 146, 251, 22);
+		FieldPanel.add(userNameField);
 		userNameField.setColumns(10);
 
-		JTextArea txtrPass = new JTextArea();
-		txtrPass.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
-		txtrPass.setEditable(false);
-		txtrPass.setFocusable(false);
-		txtrPass.setForeground(Color.WHITE);
-		txtrPass.setBackground(new Color(46, 46, 46));
-		txtrPass.setText("Password: ");
-		txtrPass.setBounds(10, 209, 73, 22);
-		basePanel.add(txtrPass);
+		JTextArea passTextArea = new JTextArea();
+		passTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		passTextArea.setEditable(false);
+		passTextArea.setFocusable(false);
+		passTextArea.setForeground(Color.WHITE);
+		passTextArea.setBackground(new Color(46, 46, 46));
+		passTextArea.setText("Password: ");
+		passTextArea.setBounds(10, 179, 73, 22);
+		FieldPanel.add(passTextArea);
 
 		JPasswordField passField = new JPasswordField();
-		passField.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		passField.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		passField.setBorder(emptyBorder);
 		passField.setForeground(Color.WHITE);
 		passField.setColumns(17);
 		passField.setBackground(new Color(73, 73, 73));
-		passField.setBounds(103, 209, 198, 20);
-		basePanel.add(passField);
+		passField.setBounds(103, 179, 251, 20);
+		FieldPanel.add(passField);
 		passField.setColumns(10);
 
-		JTextArea txtrRetypePass = new JTextArea();
-		txtrRetypePass.setEditable(false);
-		txtrRetypePass.setFocusable(false);
-		txtrRetypePass.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
-		txtrRetypePass.setForeground(Color.WHITE);
-		txtrRetypePass.setBackground(new Color(46, 46, 46));
-		txtrRetypePass.setText("Retype\r\nPassword:");
-		txtrRetypePass.setBounds(10, 242, 81, 48);
-		basePanel.add(txtrRetypePass);
+		JTextArea retypePassTextArea = new JTextArea();
+		retypePassTextArea.setEditable(false);
+		retypePassTextArea.setFocusable(false);
+		retypePassTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		retypePassTextArea.setForeground(Color.WHITE);
+		retypePassTextArea.setBackground(new Color(46, 46, 46));
+		retypePassTextArea.setText("Retype:");
+		retypePassTextArea.setBounds(10, 206, 89, 31);
+		FieldPanel.add(retypePassTextArea);
 
 		JPasswordField retypePassField = new JPasswordField();
-		retypePassField.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		retypePassField.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		retypePassField.setBorder(emptyBorder);
 		retypePassField.setForeground(Color.WHITE);
 		retypePassField.setColumns(17);
 		retypePassField.setBackground(new Color(73, 73, 73));
-		retypePassField.setBounds(103, 258, 198, 20);
-		basePanel.add(retypePassField);
+		retypePassField.setBounds(103, 210, 251, 20);
+		FieldPanel.add(retypePassField);
 		retypePassField.setColumns(10);
 
 		JButton confirmButton = new JButton("Submit");
@@ -221,8 +223,8 @@ public class CreateAccount extends JFrame {
 		confirmButton.setFocusable(false);
 		confirmButton.setBorder(BorderFactory.createEtchedBorder());
 		confirmButton.setBackground(new Color(85, 85, 85));
-		confirmButton.setBounds(112, 326, 128, 27);
-		basePanel.add(confirmButton);
+		confirmButton.setBounds(45, 458, 128, 27);
+		FieldPanel.add(confirmButton);
 
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.setBorder(emptyBorder);
@@ -231,8 +233,8 @@ public class CreateAccount extends JFrame {
 		cancelButton.setFocusable(false);
 		cancelButton.setBorder(BorderFactory.createEtchedBorder());
 		cancelButton.setBackground(new Color(85, 85, 85));
-		cancelButton.setBounds(112, 360, 128, 27);
-		basePanel.add(cancelButton);
+		cancelButton.setBounds(210, 458, 128, 27);
+		FieldPanel.add(cancelButton);
 
 		JComboBox monthCombo = new JComboBox();
 		monthCombo.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
@@ -241,8 +243,8 @@ public class CreateAccount extends JFrame {
 		monthCombo.setBorder(emptyBorder);
 		monthCombo.setForeground(Color.WHITE);
 		monthCombo.setBackground(new Color(73, 73, 73));
-		monthCombo.setBounds(103, 126, 63, 22);
-		basePanel.add(monthCombo);
+		monthCombo.setBounds(103, 113, 96, 22);
+		FieldPanel.add(monthCombo);
 
 		ArrayList<String> day_tmp = new ArrayList<String>();
 		for (int day = 1; day <= 31; day++) {
@@ -253,8 +255,8 @@ public class CreateAccount extends JFrame {
 		dayCombo.setBorder(emptyBorder);
 		dayCombo.setForeground(Color.WHITE);
 		dayCombo.setBackground(new Color(73, 73, 73));
-		dayCombo.setBounds(176, 126, 46, 22);
-		basePanel.add(dayCombo);
+		dayCombo.setBounds(210, 113, 65, 22);
+		FieldPanel.add(dayCombo);
 
 		ArrayList<String> years_tmp = new ArrayList<String>();
 		for (int years = 2023; years >= 1900; years--) {
@@ -265,8 +267,121 @@ public class CreateAccount extends JFrame {
 		yearCombo.setBorder(emptyBorder);
 		yearCombo.setForeground(Color.WHITE);
 		yearCombo.setBackground(new Color(73, 73, 73));
-		yearCombo.setBounds(232, 126, 69, 22);
-		basePanel.add(yearCombo);
+		yearCombo.setBounds(285, 113, 69, 22);
+		FieldPanel.add(yearCombo);
+		
+		String[] questions = {"What was your childhood nickname?",
+				"What street did you live on in third grade?", "What is the middle name of your youngest child?",
+				"What is your oldest sibling's middle name?", "What school did you attend for sixth grade?",
+				"What is your oldest cousin's first and last name?", "What was the name of your first stuffed animal?",
+				"Where were you when you had your first kiss?", "In what city does your nearest sibling live?",
+				"In what city or town was your first job?" };
+		
+		JComboBox q1Combo = new JComboBox();
+		q1Combo.setModel(new DefaultComboBoxModel(questions));
+		q1Combo.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		q1Combo.setForeground(new Color(255, 255, 255));
+		q1Combo.setBackground(new Color(73, 73, 73));
+		q1Combo.setBounds(45, 241, 309, 22);
+		FieldPanel.add(q1Combo);
+		
+		JTextField q1Answer = new JTextField();
+		q1Answer.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q1Answer.setForeground(new Color(255, 255, 255));
+		q1Answer.setBackground(new Color(73, 73, 73));
+		q1Answer.setBounds(103, 274, 251, 20);
+		q1Answer.setBorder(emptyBorder);
+		FieldPanel.add(q1Answer);
+		q1Answer.setColumns(10);
+		
+		JComboBox q2Combo = new JComboBox();
+		q2Combo.setModel(new DefaultComboBoxModel(questions));
+		q2Combo.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		q2Combo.setForeground(new Color(255, 255, 255));
+		q2Combo.setBackground(new Color(73, 73, 73));
+		q2Combo.setBounds(45, 305, 309, 22);
+		FieldPanel.add(q2Combo);
+		
+		JTextField q2Answer = new JTextField();
+		q2Answer.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q2Answer.setForeground(new Color(255, 255, 255));
+		q2Answer.setBackground(new Color(73, 73, 73));
+		q2Answer.setBounds(103, 338, 251, 20);
+		q2Answer.setBorder(emptyBorder);
+		FieldPanel.add(q2Answer);
+		q2Answer.setColumns(10);
+		
+		JComboBox q3Combo = new JComboBox();
+		q3Combo.setModel(new DefaultComboBoxModel(questions));
+		q3Combo.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
+		q3Combo.setForeground(new Color(255, 255, 255));
+		q3Combo.setBackground(new Color(73, 73, 73));
+		q3Combo.setBounds(45, 369, 309, 22);
+		FieldPanel.add(q3Combo);
+		
+		JTextField q3Answer = new JTextField();
+		q3Answer.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q3Answer.setForeground(new Color(255, 255, 255));
+		q3Answer.setBackground(new Color(73, 73, 73));
+		q3Answer.setBounds(103, 402, 251, 20);
+		q3Answer.setBorder(emptyBorder);
+		FieldPanel.add(q3Answer);
+		q3Answer.setColumns(10);
+		
+		JTextArea q1TextArea = new JTextArea();
+		q1TextArea.setForeground(new Color(255, 255, 255));
+		q1TextArea.setBackground(new Color(46, 46, 46));
+		q1TextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q1TextArea.setEditable(false);
+		q1TextArea.setText("Q1:");
+		q1TextArea.setBounds(10, 240, 73, 22);
+		FieldPanel.add(q1TextArea);
+		
+		JTextArea q1AnswerTextArea = new JTextArea();
+		q1AnswerTextArea.setForeground(new Color(255, 255, 255));
+		q1AnswerTextArea.setBackground(new Color(46, 46, 46));
+		q1AnswerTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q1AnswerTextArea.setEditable(false);
+		q1AnswerTextArea.setText("Q1 Answer:");
+		q1AnswerTextArea.setBounds(10, 272, 89, 22);
+		FieldPanel.add(q1AnswerTextArea);
+		
+		JTextArea q2TextArea = new JTextArea();
+		q2TextArea.setForeground(new Color(255, 255, 255));
+		q2TextArea.setBackground(new Color(46, 46, 46));
+		q2TextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q2TextArea.setEditable(false);
+		q2TextArea.setText("Q2:");
+		q2TextArea.setBounds(10, 304, 35, 22);
+		FieldPanel.add(q2TextArea);
+		
+		JTextArea q2AnswerTextArea = new JTextArea();
+		q2AnswerTextArea.setForeground(new Color(255, 255, 255));
+		q2AnswerTextArea.setBackground(new Color(46, 46, 46));
+		q2AnswerTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q2AnswerTextArea.setEditable(false);
+		q2AnswerTextArea.setText("Q2 Answer:");
+		q2AnswerTextArea.setBounds(10, 336, 89, 22);
+		FieldPanel.add(q2AnswerTextArea);
+		
+		JTextArea q3TextArea = new JTextArea();
+		q3TextArea.setForeground(new Color(255, 255, 255));
+		q3TextArea.setBackground(new Color(46, 46, 46));
+		q3TextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q3TextArea.setEditable(false);
+		q3TextArea.setText("Q3:");
+		q3TextArea.setBounds(10, 368, 35, 22);
+		FieldPanel.add(q3TextArea);
+		
+		JTextArea q3AnswerTextArea = new JTextArea();
+		q3AnswerTextArea.setForeground(new Color(255, 255, 255));
+		q3AnswerTextArea.setBackground(new Color(46, 46, 46));
+		q3AnswerTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		q3AnswerTextArea.setEditable(false);
+		q3AnswerTextArea.setText("Q3 Answer:");
+		q3AnswerTextArea.setBounds(10, 400, 89, 22);
+		FieldPanel.add(q3AnswerTextArea);
+		
 
 		confirmButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -278,8 +393,16 @@ public class CreateAccount extends JFrame {
 				String dayC = dayCombo.getSelectedItem().toString();
 				String yearC = yearCombo.getSelectedItem().toString();
 				String userNameC = userNameField.getText();
+				int q1Index = q1Combo.getSelectedIndex();
+				int q2Index = q2Combo.getSelectedIndex();
+				int q3Index = q3Combo.getSelectedIndex();
+				q1Answers = q1Answer.getText();
+				q2Answers = q2Answer.getText();
+				q3Answers = q3Answer.getText();
 				char[] userPass = passField.getPassword();
 				char[] retypePass = retypePassField.getPassword();
+				userPassCA = new String(userPass);
+				retypePassCA = new String(retypePass);
 
 				boolean compare = Arrays.equals(userPass, retypePass);
 				if (compare == true) {
@@ -290,8 +413,13 @@ public class CreateAccount extends JFrame {
 					LoginInfo.setDay(dayC);
 					LoginInfo.setYear(yearC);
 					LoginInfo.setUsernameCA(userNameC);
-					LoginInfo.setPassCA(userPass);
-					LoginInfo.setRetypePassCA(retypePass);
+					LoginInfo.setPassCA(userPassCA);
+					LoginInfo.setQ1Index(q1Index);
+					LoginInfo.setQ2Index(q2Index);
+					LoginInfo.setQ3Index(q3Index);
+					LoginInfo.setQ1Answer(q1Answers);
+					LoginInfo.setQ2Answer(q2Answers);
+					LoginInfo.setQ3Answer(q3Answers);
 					ButtonActions.ButtonActionsCreateSub();
 					dispose();
 				} else {
