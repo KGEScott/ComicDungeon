@@ -221,15 +221,23 @@ public class ComicInfo extends JFrame {
 
 		JComboBox<UrlWithIndex> variantDropDown = new JComboBox<>();
 		variantDropDown.setBorder(new LineBorder(Color.BLACK, 1));
-		variantDropDown.setForeground(new Color(255, 255, 255));
-		variantDropDown.setBackground(new Color(68, 68, 68));
+		variantDropDown.setForeground(new Color(0, 0, 0));
+		variantDropDown.setBackground(new Color(158, 158, 158));
 		variantDropDown.setBounds(427, 268, 106, 22);
 
-		int index = 1;
-		for (String url : imgUrls) {
-			variantDropDown.addItem(new UrlWithIndex(index, url));
-			index++;
+		if (imgUrls.length > 1) {
+			int index = 1;
+			for (String url : imgUrls) {
+				variantDropDown.addItem(new UrlWithIndex(index, url));
+				index++;
+			}
+			LoginInfo.setCover(imgUrls[0]);
+		} else if (imgUrls.length == 1) {
+			LoginInfo.setCover(imgUrls[0]);
+		} else {
+			LoginInfo.setCover("no image");
 		}
+
 		backgroundPanel.add(variantDropDown);
 
 		JTextArea pubNameD = new JTextArea();
@@ -302,7 +310,7 @@ public class ComicInfo extends JFrame {
 		addComicBtn.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		addComicBtn.setFocusable(false);
 		addComicBtn.setBorder(BorderFactory.createEtchedBorder());
-		addComicBtn.setBackground(new Color(85, 85, 85));
+		addComicBtn.setBackground(new Color(158, 158, 158));
 		addComicBtn.setBounds(444, 23, 89, 23);
 		backgroundPanel.add(addComicBtn);
 
@@ -322,6 +330,7 @@ public class ComicInfo extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				UrlWithIndex selectedItem = (UrlWithIndex) variantDropDown.getSelectedItem();
 				String selectedUrl = selectedItem.getUrl();
+				LoginInfo.setCover(selectedUrl);
 
 				try {
 					Image image = ImageIO.read(new URL(selectedUrl));
@@ -336,7 +345,7 @@ public class ComicInfo extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Call the addComic method from the DBConnection class
 				DBConnection.addComic(LoginInfo.getUsername(), LoginInfo.getComicsID(), LoginInfo.getSeriesID(),
-						LoginInfo.getPublisherID());
+						LoginInfo.getPublisherID(), LoginInfo.getCover());
 			}
 		});
 	}

@@ -71,6 +71,7 @@ public class ButtonActions extends Login {
 	public static void ButtonActionsSearchPublishers(String getPublisherNameToSearch) {
 		DBConnection.pullPublisher(getPublisherNameToSearch);
 	}
+
 	public static boolean BASubmitForgotPass() {
 		String username = LoginInfo.getUsername();
 		String email = LoginInfo.getEmail();
@@ -81,11 +82,11 @@ public class ButtonActions extends Login {
 			DBConnection.pullQuestions(LoginInfo.getUserID());
 			return true;
 		} else {
-			JOptionPane.showMessageDialog(null,
-					"Username or email is not in the database.");
+			JOptionPane.showMessageDialog(null, "Username or email is not in the database.");
 			return false;
 		}
 	}
+
 	public static boolean BASubmitSecurityQuestions() {
 		int id = LoginInfo.getUserID();
 		String q1 = LoginInfo.getQ1Answer();
@@ -97,8 +98,7 @@ public class ButtonActions extends Login {
 		if (answersCorrect) {
 			return true;
 		} else {
-			JOptionPane.showMessageDialog(null,
-					"One or more of your security questions may be wrong.");
+			JOptionPane.showMessageDialog(null, "One or more of your security questions may be wrong.");
 			return false;
 		}
 	}

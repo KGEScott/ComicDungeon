@@ -10,6 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
@@ -17,6 +18,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
 
 public class Login extends JFrame {
 	/**
@@ -24,7 +31,7 @@ public class Login extends JFrame {
 		 */
 	private static final long serialVersionUID = -2093583572269751429L;
 	public static String userName;
-	private static String userPass;
+//	private static String userPass;
 	private JPanel contentPane;
 
 	/**
@@ -101,6 +108,7 @@ public class Login extends JFrame {
 		loginUI.add(txtrPassword);
 
 		JPasswordField passwordField = new JPasswordField();
+		((AbstractDocument) passwordField.getDocument()).setDocumentFilter(new PasswordDocumentFilter());
 		Properties.setLoginTextFieldProperties(passwordField);
 		passwordField.setBounds(34, 110, 128, 20);
 
@@ -122,6 +130,14 @@ public class Login extends JFrame {
 		JTextField userNameField = new JTextField();
 		userNameField.setBounds(34, 55, 128, 20);
 		loginUI.add(userNameField);
+
+		// Set the maximum character limit
+		userNameField.setDocument(new JTextFieldLimit(20));
+
+		// Add a document filter to escape symbols
+		((AbstractDocument) userNameField.getDocument()).setDocumentFilter(new EscapeSymbolDocumentFilter());
+
+		// Set other properties
 		Properties.setLoginTextFieldProperties(userNameField);
 
 		JLabel backgroundImage = new JLabel();
@@ -133,18 +149,47 @@ public class Login extends JFrame {
 
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				userName = userNameField.getText();
-				char[] charPass = passwordField.getPassword();
-				userPass = new String(charPass);
+				// Validate the user name input
+				String userName = userNameField.getText();
+				if (userName == null || !userName.matches("^[a-zA-Z0-9]{4,20}$")) {
+					JOptionPane.showMessageDialog(loginUI,
+							"User name must be 4-20 characters and contain only letters and numbers.");
+					return;
+				}
+
+				// Validate the password input
+				String userPass = new String();
+				try {
+					Document passwordDoc = passwordField.getDocument();
+					((AbstractDocument) passwordDoc).setDocumentFilter(new PasswordDocumentFilter()); // Use the new
+																										// PasswordDocumentFilter
+																										// class
+					userPass = passwordDoc.getText(0, passwordDoc.getLength());
+					((AbstractDocument) passwordDoc).setDocumentFilter(new EscapeSymbolDocumentFilter()); // Reset the
+																											// document
+																											// filter
+				} catch (BadLocationException ex) {
+					ex.printStackTrace();
+				}
+
+				if (userPass == null || userPass.length() == 0) {
+					JOptionPane.showMessageDialog(loginUI, "Password is required.");
+					return;
+				}
+
+				// Store the user name and password inputs in the LoginInfo class
 				LoginInfo.setUsername(userName);
 				LoginInfo.setPass(userPass);
 
+				// Call the ButtonActionsSubmit method to perform the login actions
 				if (ButtonActions.ButtonActionsSubmit() == true) {
 					dispose();
-				} else
+				} else {
 					passwordField.setText("");
+				}
 			}
 		});
+
 		createAccount.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ButtonActions.ButtonActionsCreate();
@@ -158,5 +203,92 @@ public class Login extends JFrame {
 			}
 		});
 
+	}
+
+	public class EscapeSymbolDocumentFilter extends DocumentFilter {
+		@Override
+		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.insertString(fb, offset, filtered, attr);
+		}
+
+		@Override
+		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.replace(fb, offset, length, filtered, attrs);
+		}
+
+		private String filterString(String str) {
+			// Remove all characters that are not letters or numbers
+			return str.replaceAll("[^a-zA-Z0-9]", "");
+		}
+	}
+
+	public class PasswordDocumentFilter extends DocumentFilter {
+		private static final String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*~`";
+		private static final String DISALLOWED_CHARACTERS = "+_)(=-09|}{\\][\":';?></.,";
+
+		@Override
+		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.insertString(fb, offset, filtered, attr);
+		}
+
+		@Override
+		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.replace(fb, offset, length, filtered, attrs);
+		}
+
+		private String filterString(String str) {
+			StringBuilder filtered = new StringBuilder();
+			for (int i = 0; i < str.length(); i++) {
+				char c = str.charAt(i);
+				if (ALLOWED_CHARACTERS.indexOf(c) != -1 && DISALLOWED_CHARACTERS.indexOf(c) == -1) {
+					filtered.append(c);
+				}
+			}
+			return filtered.toString().substring(0, Math.min(filtered.length(), 15));
+		}
+	}
+
+	public class JTextFieldLimit extends PlainDocument {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8334549265947591445L;
+		private int limit;
+
+		public JTextFieldLimit(int limit) {
+			super();
+			this.limit = limit;
+		}
+
+		@Override
+		public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+
+			if ((getLength() + str.length()) <= limit) {
+				super.insertString(offset, str, attr);
+			}
+		}
 	}
 }

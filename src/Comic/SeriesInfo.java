@@ -64,7 +64,7 @@ public class SeriesInfo extends JFrame {
 		List<Map<String, String>> seriesInfo = DBConnection.pullSeriesInfo(LoginInfo.getIdView());
 		JTextArea seriesInfoTxt = new JTextArea();
 
-		//String id = null;
+		// String id = null;
 		String name = null;
 		String year_began = null;
 		String year_ended = null;

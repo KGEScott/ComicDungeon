@@ -6,11 +6,13 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -130,14 +132,30 @@ public class ChangePassword extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				oldPass = oldPassTextField.getText();
 				String newPassS = passTextField.getText();
-				LoginInfo.setPrevPass(oldPass);
-				newPass = BCrypt.hashpw(newPassS, BCrypt.gensalt());
-				LoginInfo.setNewPass(newPass);
-				if (ButtonActions.ButtonActionsSubCPW() == true) {
-					dispose();
+
+				// Validate new password
+				String error = "";
+				String disallowedPasswordCharacters = "+_)(=-09|}{\\][\":';?></.,~`";
+				if (newPassS.length() < 8 || newPassS.length() > 15
+						|| newPassS.matches(".[" + Pattern.quote(disallowedPasswordCharacters) + "].*")) {
+					error += "Password must be between 8 and 15 characters and must not contain any disallowed characters.\n";
+				} else if (!newPassS.matches(".*[a-z].*") || !newPassS.matches(".*[A-Z].*")
+						|| !newPassS.matches(".*[!@#$%^&*].*")) {
+					error += "Password must contain at least 1 lowercase letter, 1 uppercase letter, and 1 symbol from !@#$%^&*.\n";
+				}
+
+				if (error.isEmpty()) {
+					LoginInfo.setPrevPass(oldPass);
+					newPass = BCrypt.hashpw(newPassS, BCrypt.gensalt());
+					LoginInfo.setNewPass(newPass);
+					if (ButtonActions.ButtonActionsSubCPW() == true) {
+						dispose();
+					} else {
+						oldPassTextField.setText("");
+						passTextField.setText("");
+					}
 				} else {
-					oldPassTextField.setText("");
-					passTextField.setText("");
+					JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});

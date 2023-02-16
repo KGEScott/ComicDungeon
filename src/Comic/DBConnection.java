@@ -15,43 +15,35 @@ import javax.swing.JOptionPane;
 
 public class DBConnection {
 
-	protected static String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-	protected static String user = "root";
-	protected static String password = "new_password";
+	private static final String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
+	private static final String user = "root";
+	private static final String password = "new_password";
 
 	public static boolean checkUNnPass(String username, String userPassword) {
-
 		String pwd = userPassword;
-		String uNToDB = username;
 		boolean nameAndPassInDB = false;
 
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
-			String sql = "SELECT userName, password FROM user WHERE userName = " + "'" + uNToDB + "'";
-			ResultSet rs = stmt.executeQuery(sql);
+		try (Connection con = DriverManager.getConnection(url, user, password);
+				PreparedStatement pstmt = con
+						.prepareStatement("SELECT userName, password, id FROM user WHERE userName = ?")) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
 
 			// Check if the username is in the result set
 			boolean isUsernameInDB = rs.next();
 
 			if (isUsernameInDB) {
-
 				// Get the hashed password from the database
 				String storedPassword = rs.getString("password");
 
 				// Compare the hashed password with the password from the user
 				if (BCrypt.checkpw(pwd, storedPassword)) {
 					nameAndPassInDB = true;
-					con.close();
+
+					// Save the user ID to LoginInfo
+					LoginInfo.setUserID(rs.getInt("id"));
 				} else {
 					nameAndPassInDB = false;
-					con.close();
 				}
 			}
 		} catch (Exception e) {
@@ -62,87 +54,42 @@ public class DBConnection {
 	}
 
 	public static boolean caIsInDB(String username) {
+		boolean isUsernameInDB = false;
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-		String uNToDB = username;
 		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
 			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
+			String sql = "SELECT * FROM user WHERE userName = ?";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
 
-			// Execute a query to retrieve data from the "user" table
-			String sql = "SELECT * FROM user WHERE userName = " + "'" + uNToDB + "'";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			// Check if the username is in the result set
-			boolean isUsernameInDB = rs.next();
-
-			if (isUsernameInDB == true) {
-				con.close();
-				return isUsernameInDB;
-			} else {
-				con.close();
-				return false;
-
-			}
+			isUsernameInDB = rs.next();
+			con.close();
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
-			return false;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-			return false;
 		}
+
+		return isUsernameInDB;
 	}
 
 	public static boolean emailInDB(String email) {
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-		String isEmail = email;
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
 
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			String sql = "SELECT * FROM user WHERE email = ?";
+			PreparedStatement stmt = con.prepareStatement(sql);
+			stmt.setString(1, email);
+			ResultSet rs = stmt.executeQuery();
 
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
-			String sql = "SELECT * FROM user WHERE email = " + "'" + isEmail + "'";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			// Check if the username is in the result set
-			boolean isEmailInDB = rs.next();
-
-			if (isEmailInDB == true) {
-				con.close();
-				return isEmailInDB;
-
+			if (rs.next()) {
+				return true;
 			} else {
-				con.close();
 				return false;
-
 			}
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
-			return false;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -151,79 +98,32 @@ public class DBConnection {
 			String userYear, String userMonth, String userDay, String userPassCA, int q1Index, String q1Answer,
 			int q2Index, String q2Answer, int q3Index, String q3Answer) {
 
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-		String hashedPassword = BCrypt.hashpw(userPassCA, BCrypt.gensalt());
-		String id = null;
+		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon", user = "root", password = "new_password", id = null;
 
-		try {
-			// Registering the JDBC driver
+		try (Connection con = DriverManager.getConnection(url, user, password);
+				Statement stmt = con.createStatement()) {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			String sql = "INSERT INTO user (userName, firstName, lastName, email, DoB, securityQ1, securityQ2, securityQ3, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			String sql2 = "SELECT id FROM user WHERE userName = " + "'" + userNameCA + "'";
-			String sql3 = "INSERT INTO security_questions (q1, q2, q3, user_id) VALUES (?, ?, ?, ?)";
-
-			PreparedStatement insertStmt = con.prepareStatement(sql);
 			String month = LoginInfo.getMonth();
-
-			int monthNum = 0;
-			int dayInt = Integer.parseInt(userDay);
-			String dayToStr = "01";
-			String monthToStr = "01";
-
-			if (month == "Jan") {
-				monthNum = 1;
-			}
-			if (month == "Feb") {
-				monthNum = 2;
-			}
-			if (month == "Mar") {
-				monthNum = 3;
-			}
-			if (month == "Apr") {
-				monthNum = 4;
-			}
-			if (month == "May") {
-				monthNum = 5;
-			}
-			if (month == "Jun") {
-				monthNum = 6;
-			}
-			if (month == "Jul") {
-				monthNum = 7;
-			}
-			if (month == "Aug") {
-				monthNum = 8;
-			}
-			if (month == "Sep") {
-				monthNum = 9;
-			}
-			if (month == "Oct") {
-				monthNum = 10;
-			}
-			if (month == "Nov") {
-				monthNum = 11;
-			}
-			if (month == "Dec") {
-				monthNum = 12;
-			}
-			if (monthNum <= 9) {
-				String toString = String.valueOf(monthNum);
-				monthToStr = "0" + toString;
-			} else {
-				monthToStr = String.valueOf(monthNum);
-			}
-			if (dayInt <= 9) {
-				dayToStr = "0" + String.valueOf(dayInt);
-			}
-			String date = userYear + "-" + monthToStr + "-" + dayToStr;
-
+			int monthNum = month.equals("Jan") ? 1
+					: month.equals("Feb") ? 2
+							: month.equals("Mar") ? 3
+									: month.equals("Apr") ? 4
+											: month.equals("May") ? 5
+													: month.equals("Jun") ? 6
+															: month.equals("Jul") ? 7
+																	: month.equals("Aug") ? 8
+																			: month.equals("Sep") ? 9
+																					: month.equals("Oct") ? 10
+																							: month.equals("Nov") ? 11
+																									: month.equals(
+																											"Dec") ? 12
+																													: 0;
+			String date = userYear + "-" + (monthNum < 10 ? "0" : "") + monthNum + "-"
+					+ (Integer.parseInt(userDay) < 10 ? "0" : "") + userDay;
+			String sql = "INSERT INTO user (userName, firstName, lastName, email, DoB, securityQ1, securityQ2, securityQ3, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String sql2 = "SELECT id FROM user WHERE userName = '" + userNameCA + "'";
+			String sql3 = "INSERT INTO security_questions (q1, q2, q3, user_id) VALUES (?, ?, ?, ?)";
+			PreparedStatement insertStmt = con.prepareStatement(sql);
 			insertStmt.setString(1, userNameCA);
 			insertStmt.setString(2, userFirstName);
 			insertStmt.setString(3, userLastName);
@@ -232,187 +132,99 @@ public class DBConnection {
 			insertStmt.setString(6, q1Answer);
 			insertStmt.setString(7, q2Answer);
 			insertStmt.setString(8, q3Answer);
-			insertStmt.setString(9, hashedPassword);
+			insertStmt.setString(9, BCrypt.hashpw(userPassCA, BCrypt.gensalt()));
 			insertStmt.executeUpdate();
 			ResultSet rs = stmt.executeQuery(sql2);
-			if (rs.next()) {
+			if (rs.next())
 				id = rs.getString("id");
-			}
 			PreparedStatement qIndexInsertStmt = con.prepareStatement(sql3);
-			String q1IS = String.valueOf(q1Index);
-			String q2IS = String.valueOf(q2Index);
-			String q3IS = String.valueOf(q3Index);
-			qIndexInsertStmt.setString(1, q1IS);
-			qIndexInsertStmt.setString(2, q2IS);
-			qIndexInsertStmt.setString(3, q3IS);
+			qIndexInsertStmt.setString(1, String.valueOf(q1Index));
+			qIndexInsertStmt.setString(2, String.valueOf(q2Index));
+			qIndexInsertStmt.setString(3, String.valueOf(q3Index));
 			qIndexInsertStmt.setString(4, id);
 			qIndexInsertStmt.executeUpdate();
-			con.close();
-
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-			// return false;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
+		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
-			// return false;
 		}
 	}
 
 	public static List<String> pullUserInfo(String username) {
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			PreparedStatement pstmt = con.prepareStatement(
+					"SELECT userName, firstName, lastName, email, DoB, password FROM user WHERE userName = ?");
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-		String uNToDB = username;
-
-		List<String> userInfo = null;
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
-			String sql = "SELECT * FROM user WHERE userName = " + "'" + uNToDB + "'";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			// Check if the username is in the result set
-			userInfo = new ArrayList<String>();
-			while (rs.next()) {
-				for (int iteration = 2; iteration <= 6; iteration++)
-					userInfo.add(rs.getString(iteration));
+			List<String> userInfo = new ArrayList<>();
+			if (rs.next()) {
+				for (int i = 1; i <= 5; i++) {
+					userInfo.add(rs.getString(i));
+				}
 			}
-			con.close();
+
+			return userInfo;
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 			return null;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-			return null;
 		}
-		return userInfo;
 	}
 
 	public static boolean changePW(String username, String prevPass, String newPass) {
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			String cPWQ = "SELECT password FROM user WHERE userName = ?";
+			PreparedStatement pstmt = con.prepareStatement(cPWQ);
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-		List<String> userPW = null;
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
-			String cPWQ = "SELECT password FROM user WHERE userName = " + "'" + username + "'";
-			ResultSet rs = stmt.executeQuery(cPWQ);
-
-			// Check if the username is in the result set
-			userPW = new ArrayList<String>();
-			while (rs.next()) {
-				userPW.add(rs.getString(1));
-			}
-
-			if (BCrypt.checkpw(prevPass, userPW.get(0))) {
-				String addPass = "UPDATE user SET password=? WHERE userName= " + "'" + username + "'";
-
+			if (rs.next() && BCrypt.checkpw(prevPass, rs.getString(1))) {
+				String addPass = "UPDATE user SET password=? WHERE userName=?";
 				PreparedStatement insertStmt = con.prepareStatement(addPass);
-				insertStmt.setString(1, newPass);
+				insertStmt.setString(1, BCrypt.hashpw(newPass, BCrypt.gensalt()));
+				insertStmt.setString(2, username);
 				insertStmt.executeUpdate();
-				con.close();
 				return true;
-			} else {
-				con.close();
-				return false;
 			}
-
+			return false;
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
-			return false;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
 			return false;
 		}
 	}
 
 	public static List<Map<String, String>> pullPublisher(String getPublisher) {
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			String pubSQL = "SELECT id, name FROM gcd_publisher WHERE name LIKE ? ORDER BY name";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setString(1, "%" + getPublisher + "%");
+			ResultSet rs = pstmt.executeQuery();
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
+			List<Map<String, String>> publisherData = new ArrayList<>();
 
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
-			String pubSQL = "SELECT id, name FROM gcd_publisher WHERE name LIKE " + "'%" + getPublisher
-					+ "%' ORDER BY name";
-			ResultSet rs = stmt.executeQuery(pubSQL);
-
-			List<Map<String, String>> publisherData = new ArrayList<Map<String, String>>();
-
-			// Check if the username is in the result set
 			while (rs.next()) {
-				Map<String, String> publisher = new HashMap<String, String>();
+				Map<String, String> publisher = new HashMap<>();
 				publisher.put("id", rs.getString("id"));
 				publisher.put("name", rs.getString("name"));
 				publisherData.add(publisher);
 			}
-			con.close();
 			return publisherData;
 
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
 			return null;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-			return null;
 		}
 	}
 
 	public static List<Map<String, String>> pullSeries(String idEnter) {
-
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-
 		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
 			// Open a connection to the database and set the character encoding to UTF-8mb4
 			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Set the input parameter value
-			// Execute a query to retrieve data from the "user" table
-			String pubSQL = "SELECT id, name FROM gcd_series WHERE publisher_id = " + "'" + idEnter
-					+ "' ORDER BY name, year_began";
-			ResultSet rs = stmt.executeQuery(pubSQL);
+			String pubSQL = "SELECT id, name FROM gcd_series WHERE publisher_id = ? ORDER BY name, year_began";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setString(1, idEnter);
+			ResultSet rs = pstmt.executeQuery();
 
 			List<Map<String, String>> seriesData = new ArrayList<Map<String, String>>();
 
@@ -439,24 +251,11 @@ public class DBConnection {
 
 	public static List<Map<String, String>> pullSeriesName(String seriesName) {
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Set the input parameter value
-			// Execute a query to retrieve data from the "user" table
-			String pubSQL = "SELECT id, name, publisher_id FROM gcd_series WHERE name LIKE " + "'%" + seriesName
-					+ "%' ORDER BY name, year_began";
-			ResultSet rs = stmt.executeQuery(pubSQL);
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			String pubSQL = "SELECT id, name, publisher_id FROM gcd_series WHERE name LIKE ? ORDER BY name, year_began";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setString(1, "%" + seriesName + "%");
+			ResultSet rs = pstmt.executeQuery();
 
 			List<Map<String, String>> seriesData = new ArrayList<Map<String, String>>();
 
@@ -468,39 +267,24 @@ public class DBConnection {
 				series.put("publisher_id", rs.getString("publisher_id"));
 				seriesData.add(series);
 			}
-			con.close();
 			return seriesData;
 
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
 			return null;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-			return null;
 		}
 	}
 
 	public static List<Map<String, String>> pullPublisherInfo(String idView) {
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-
 		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
 			// Open a connection to the database and set the character encoding to UTF-8mb4
 			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
-			String pubSQL = "SELECT id, name, year_began, notes, series_count, created, issue_count FROM gcd_publisher WHERE id = "
-					+ "'" + idView + "' ORDER BY name";
-			ResultSet rs = stmt.executeQuery(pubSQL);
+			String pubSQL = "SELECT id, name, year_began, notes, series_count, created, issue_count FROM gcd_publisher WHERE id = ? ORDER BY name";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setString(1, idView);
+			ResultSet rs = pstmt.executeQuery();
 
 			List<Map<String, String>> publisherInfo = new ArrayList<Map<String, String>>();
 
@@ -531,74 +315,42 @@ public class DBConnection {
 	}
 
 	public static List<Map<String, String>> pullComics(String seriesID) {
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			String pubSQL = "SELECT volume, number, publication_date, id FROM gcd_issue WHERE series_id = ? ORDER BY number, publication_date";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setString(1, seriesID);
+			ResultSet rs = pstmt.executeQuery();
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
+			List<Map<String, String>> comicData = new ArrayList<>();
 
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Set the input parameter value
-			// Execute a query to retrieve data from the "user" table
-			String pubSQL = "SELECT volume, number, publication_date, id FROM gcd_issue WHERE series_id = " + "'"
-					+ seriesID + "'";
-			ResultSet rs = stmt.executeQuery(pubSQL);
-
-			List<Map<String, String>> comicData = new ArrayList<Map<String, String>>();
-
-			// Check if the username is in the result set
 			while (rs.next()) {
-				Map<String, String> series = new HashMap<String, String>();
+				Map<String, String> series = new HashMap<>();
 				series.put("volume", rs.getString("volume"));
 				series.put("number", rs.getString("number"));
 				series.put("publication_date", rs.getString("publication_date"));
 				series.put("id", rs.getString("id"));
 				comicData.add(series);
 			}
-			con.close();
 			return comicData;
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
-			return null;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
 			return null;
 		}
 	}
 
 	public static List<Map<String, String>> pullSeriesInfo(String seriesID) {
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-
 		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
 			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
 			String pubSQL = "SELECT id, name, year_began, year_ended, notes, color, dimensions, paper_stock,"
-					+ "binding, publishing_format FROM gcd_series WHERE id = " + "'" + seriesID + "' ORDER BY name";
-			ResultSet rs = stmt.executeQuery(pubSQL);
+					+ "binding, publishing_format FROM gcd_series WHERE id = ? ORDER BY name";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setString(1, seriesID);
+			ResultSet rs = pstmt.executeQuery();
 
 			List<Map<String, String>> seriesInfo = new ArrayList<Map<String, String>>();
 
-			// Check if the username is in the result set
 			while (rs.next()) {
 				Map<String, String> seriesInformation = new HashMap<String, String>();
 				seriesInformation.put("id", rs.getString("id"));
@@ -617,11 +369,9 @@ public class DBConnection {
 			return seriesInfo;
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 			return null;
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
 			return null;
 		}
@@ -629,27 +379,14 @@ public class DBConnection {
 
 	public static List<Map<String, String>> pullComicsInfo(String comicsID) {
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-			Statement stmt = con.createStatement();
-
-			// Execute a query to retrieve data from the "user" table
-			String pubSQL = "SELECT id, number, publication_date, price, page_count, editing, notes, on_sale_date  FROM gcd_issue WHERE id = "
-					+ "'" + comicsID + "'";
-			ResultSet rs = stmt.executeQuery(pubSQL);
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			String pubSQL = "SELECT id, number, publication_date, price, page_count, editing, notes, on_sale_date  FROM gcd_issue WHERE id = ?";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setString(1, comicsID);
+			ResultSet rs = pstmt.executeQuery();
 
 			List<Map<String, String>> comicsInfo = new ArrayList<Map<String, String>>();
 
-			// Check if the username is in the result set
 			while (rs.next()) {
 				Map<String, String> comicsInformation = new HashMap<String, String>();
 				comicsInformation.put("id", rs.getString("id"));
@@ -662,35 +399,24 @@ public class DBConnection {
 				comicsInformation.put("on_sale_date", rs.getString("on_sale_date"));
 				comicsInfo.add(comicsInformation);
 			}
-			con.close();
 			return comicsInfo;
 
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
 			return null;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-			return null;
 		}
 	}
 
 	public static boolean checkUserNameAndEmail(String username, String newEmail) {
-		String email = newEmail;
-		String uNInDB = username;
 		boolean nameAndEmailInDB = false;
-
 		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
 			// Open a connection to the database and set the character encoding to UTF-8mb4
 			Connection con = DriverManager.getConnection(url, user, password);
 			PreparedStatement stmt = con
 					.prepareStatement("SELECT id, username, email FROM user WHERE username = ? AND email = ?");
-			stmt.setString(1, uNInDB);
-			stmt.setString(2, email);
+			stmt.setString(1, username);
+			stmt.setString(2, newEmail);
 
 			// Execute a query to retrieve data from the "user" table
 			ResultSet rs = stmt.executeQuery();
@@ -715,23 +441,12 @@ public class DBConnection {
 	}
 
 	public static void pullQuestions(int userID) {
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-		int userIDInDB = userID;
 
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
-
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
 			// Execute a query to retrieve data from the "security_questions" table
 			PreparedStatement stmt = con
 					.prepareStatement("SELECT q1, q2, q3 FROM security_questions WHERE user_id = ?");
-			stmt.setInt(1, userIDInDB);
+			stmt.setInt(1, userID);
 			ResultSet rs = stmt.executeQuery();
 
 			if (rs.next()) {
@@ -745,14 +460,9 @@ public class DBConnection {
 			} else {
 				System.out.println("No matching rows found for userID: " + userID);
 			}
-			con.close();
-
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
 		}
 	}
 
@@ -760,35 +470,31 @@ public class DBConnection {
 
 		boolean securityAnswersSame = false;
 
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
 			PreparedStatement stmt = con
 					.prepareStatement("SELECT securityQ1, securityQ2, securityQ3 FROM user WHERE id = ?");
 			stmt.setInt(1, id);
 
 			// Execute a query to retrieve data from the "user" table
-			ResultSet rs = stmt.executeQuery();
+			try (ResultSet rs = stmt.executeQuery()) {
+				// Check if the username is in the result set
+				if (rs.next()) {
+					// Get the username and email from db
+					String storedQ1 = rs.getString("securityQ1");
+					String storedQ2 = rs.getString("securityQ2");
+					String storedQ3 = rs.getString("securityQ3");
 
-			// Check if the username is in the result set
-			if (rs.next()) {
-				// Get the username and email from db
-				String storedQ1 = rs.getString("securityQ1");
-				String storedQ2 = rs.getString("securityQ2");
-				String storedQ3 = rs.getString("securityQ3");
-
-				if (q1Answers.equalsIgnoreCase(storedQ1) && q2Answers.equalsIgnoreCase(storedQ2)
-						&& q3Answers.equalsIgnoreCase(storedQ3)) {
-					securityAnswersSame = true;
-				} else {
-					securityAnswersSame = false;
+					if (q1Answers.equalsIgnoreCase(storedQ1) && q2Answers.equalsIgnoreCase(storedQ2)
+							&& q3Answers.equalsIgnoreCase(storedQ3)) {
+						securityAnswersSame = true;
+					} else {
+						securityAnswersSame = false;
+					}
 				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-			con.close();
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
@@ -797,41 +503,22 @@ public class DBConnection {
 
 	public static void forgotPWChange(int id, String newPass) {
 
-		// URL, username, and password to access the database
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
 		String hashedPassword = BCrypt.hashpw(newPass, BCrypt.gensalt());
 
-		try {
-			// Registering the JDBC driver
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
+		try (Connection con = DriverManager.getConnection(url, user, password);
+				PreparedStatement stmt = con.prepareStatement("UPDATE user SET password = ? WHERE id = ?")) {
 
 			// Execute a query to change the password within the database.
-			PreparedStatement stmt = con.prepareStatement("UPDATE user SET password = ? WHERE id = ?");
 			stmt.setString(1, hashedPassword);
 			stmt.setInt(2, id);
 			stmt.executeUpdate();
-			con.close();
-
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
 		}
 	}
 
-	public static void addComic(String userName, String comicID, String seriesID, String publisherID) {
-
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-		String user = "root";
-		String password = "new_password";
-
+	public static void addComic(String userName, String comicID, String seriesID, String publisherID, String cover) {
 		try (Connection con = DriverManager.getConnection(url, user, password)) {
 			con.setAutoCommit(false);
 			String sql = "SELECT id FROM user WHERE username = ?";
@@ -860,13 +547,14 @@ public class DBConnection {
 				updateStmt.executeUpdate();
 			} else {
 				count = 1;
-				String sql4 = "INSERT INTO user_collection (user_id, comic_id, series_id, publisher_id, count) VALUES (?, ?, ?, ?, ?)";
+				String sql4 = "INSERT INTO user_collection (user_id, comic_id, series_id, publisher_id, count, cover) VALUES (?, ?, ?, ?, ?, ?)";
 				PreparedStatement insertStmt = con.prepareStatement(sql4);
 				insertStmt.setInt(1, userID);
 				insertStmt.setString(2, comicID);
 				insertStmt.setString(3, seriesID);
 				insertStmt.setString(4, publisherID);
 				insertStmt.setInt(5, count);
+				insertStmt.setString(6, cover);
 				insertStmt.executeUpdate();
 			}
 
@@ -875,6 +563,38 @@ public class DBConnection {
 					"This comic has been added to your library.\nThe current count is: " + count);
 		} catch (SQLException e) {
 			System.out.println("Error: " + e.getMessage());
+		}
+	}
+
+	public static List<Map<String, String>> pullCollection(int userID) {
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			String pubSQL = "SELECT uc.comic_id, uc.series_id, uc.publisher_id, uc.count, uc.cover, gs.name AS series_name, gp.name AS publisher_name, gi.number "
+					+ "FROM user_collection uc " + "JOIN gcd_series gs ON uc.series_id = gs.id "
+					+ "JOIN gcd_publisher gp ON uc.publisher_id = gp.id " + "JOIN gcd_issue gi ON uc.comic_id = gi.id "
+					+ "WHERE uc.user_id = ? " + "ORDER BY uc.publisher_id";
+			PreparedStatement pstmt = con.prepareStatement(pubSQL);
+			pstmt.setInt(1, userID);
+			ResultSet rs = pstmt.executeQuery();
+
+			List<Map<String, String>> myCollection = new ArrayList<Map<String, String>>();
+
+			while (rs.next()) {
+				Map<String, String> myCollectionMap = new HashMap<String, String>();
+				myCollectionMap.put("comic_id", rs.getString("comic_id"));
+				myCollectionMap.put("series_id", rs.getString("series_id"));
+				myCollectionMap.put("series_name", rs.getString("series_name"));
+				myCollectionMap.put("publisher_id", rs.getString("publisher_id"));
+				myCollectionMap.put("publisher_name", rs.getString("publisher_name"));
+				myCollectionMap.put("count", rs.getString("count"));
+				myCollectionMap.put("cover", rs.getString("cover"));
+				myCollectionMap.put("number", rs.getString("number"));
+				myCollection.add(myCollectionMap);
+			}
+			return myCollection;
+
+		} catch (SQLException se) {
+			se.printStackTrace();
+			return null;
 		}
 	}
 

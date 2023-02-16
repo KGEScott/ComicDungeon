@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -19,6 +20,9 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 public class ForgotPassword extends JFrame {
 
@@ -48,7 +52,6 @@ public class ForgotPassword extends JFrame {
 			}
 		});
 	}
-
 
 	public ForgotPassword() {
 		String[] questions = { "What was your childhood nickname?", "What street did you live on in third grade?",
@@ -298,22 +301,38 @@ public class ForgotPassword extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String userNameFP = userNameField.getText();
 				String emailFP = emailField.getText();
-				LoginInfo.setUsername(userNameFP);
-				LoginInfo.setEmail(emailFP);
-				if (ButtonActions.BASubmitForgotPass() == true) {
-					DBConnection.pullQuestions(LoginInfo.getUserID());
-					q1Index = LoginInfo.getQ1Index();
-					q2Index = LoginInfo.getQ2Index();
-					q3Index = LoginInfo.getQ3Index();
-					contentPane.remove(panelAccount);
-					contentPane.remove(changePasswordPanel);
-					contentPane.add(qPanel);
-					q1Text.setText(questions[q1Index]);
-					q2Text.setText(questions[q2Index]);
-					q3Text.setText(questions[q3Index]);
-				} else
-					userNameField.setText("");
-				emailField.setText("");
+
+				String error = "";
+				if (userNameFP.length() < 4 || userNameFP.length() > 20 || !userNameFP.matches("^[a-zA-Z0-9]+$")) {
+					error += "Username must be between 4 and 20 characters and contain only letters and numbers.\n";
+				}
+
+				if (emailFP == null || emailFP.isEmpty() || emailFP.length() < 8 || emailFP.length() > 45
+						|| !emailFP.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+					error += "Email must be between 8 and 45 characters and must be in a valid format.\n";
+				}
+
+				if (error.isEmpty()) {
+					LoginInfo.setUsername(userNameFP);
+					LoginInfo.setEmail(emailFP);
+					if (ButtonActions.BASubmitForgotPass() == true) {
+						DBConnection.pullQuestions(LoginInfo.getUserID());
+						q1Index = LoginInfo.getQ1Index();
+						q2Index = LoginInfo.getQ2Index();
+						q3Index = LoginInfo.getQ3Index();
+						contentPane.remove(panelAccount);
+						contentPane.remove(changePasswordPanel);
+						contentPane.add(qPanel);
+						q1Text.setText(questions[q1Index]);
+						q2Text.setText(questions[q2Index]);
+						q3Text.setText(questions[q3Index]);
+					} else {
+						userNameField.setText("");
+						emailField.setText("");
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 
@@ -328,15 +347,24 @@ public class ForgotPassword extends JFrame {
 				String q1Answer = q1UserInput.getText();
 				String q2Answer = q2UserInput.getText();
 				String q3Answer = q3UserInput.getText();
-				LoginInfo.setQ1Answer(q1Answer);
-				LoginInfo.setQ2Answer(q2Answer);
-				LoginInfo.setQ3Answer(q3Answer);
-				if (ButtonActions.BASubmitSecurityQuestions() == true) {
-					contentPane.remove(qPanel);
-					contentPane.add(changePasswordPanel);
-					repaint();
-					revalidate();
+				String error = "";
+				if (q1Answer.length() > 20 || q2Answer.length() > 20 || q3Answer.length() > 20
+						|| !q1Answer.matches("^[a-zA-Z0-9]+$") || !q2Answer.matches("^[a-zA-Z0-9]+$")
+						|| !q3Answer.matches("^[a-zA-Z0-9]+$")) {
+					error += "Security questions must not exceed 20 characters and can only contain letters and numbers.\n";
+				}
+				if (error.isEmpty()) {
+					LoginInfo.setQ1Answer(q1Answer);
+					LoginInfo.setQ2Answer(q2Answer);
+					LoginInfo.setQ3Answer(q3Answer);
+					if (ButtonActions.BASubmitSecurityQuestions() == true) {
+						contentPane.remove(qPanel);
+						contentPane.add(changePasswordPanel);
+						repaint();
+						revalidate();
+					}
 				} else {
+					JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE);
 					q1UserInput.setText(null);
 					q2UserInput.setText(null);
 					q3UserInput.setText(null);
@@ -354,13 +382,28 @@ public class ForgotPassword extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String newPass = newPassField.getText();
 				String newPassS = rePassField.getText();
-				if (newPass.equals(newPassS)) {
+
+				String error = "";
+				String disallowedPasswordCharacters = "+_)(=-09|}{\\][\":';?></.,~`";
+				if (newPass.length() < 8 || newPass.length() > 15
+						|| newPass.matches(".[" + Pattern.quote(disallowedPasswordCharacters) + "].*")) {
+					error += "Password must be between 8 and 15 characters and must not contain any disallowed characters.\n";
+				} else if (!newPass.matches(".*[a-z].*") || !newPass.matches(".*[A-Z].*")
+						|| !newPass.matches(".*[!@#$%^&*].*")) {
+					error += "Password must contain at least 1 lowercase letter, 1 uppercase letter, and 1 symbol from !@#$%^&*.\n";
+				}
+
+				if (newPass.equals(newPassS) && error.isEmpty()) {
 					LoginInfo.setNewPass(newPass);
 					DBConnection.forgotPWChange(LoginInfo.getUserID(), newPassS);
 					JOptionPane.showMessageDialog(null, "User password has been set. Please try logging in.");
 					dispose();
 				} else {
-					JOptionPane.showMessageDialog(null, "Your passwords do not match.");
+					if (!error.isEmpty()) {
+						JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(null, "Your passwords do not match.");
+					}
 					newPassField.setText("");
 					rePassField.setText("");
 				}
@@ -371,5 +414,68 @@ public class ForgotPassword extends JFrame {
 				dispose();
 			}
 		});
+	}
+
+	public class EscapeSymbolDocumentFilter extends DocumentFilter {
+		@Override
+		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.insertString(fb, offset, filtered, attr);
+		}
+
+		@Override
+		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.replace(fb, offset, length, filtered, attrs);
+		}
+
+		private String filterString(String str) {
+			// Remove all characters that are not letters or numbers
+			return str.replaceAll("[^a-zA-Z0-9]", "");
+		}
+	}
+
+	public class PasswordDocumentFilter extends DocumentFilter {
+		private static final String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*~`";
+		private static final String DISALLOWED_CHARACTERS = "+_)(=-09|}{\\][\":';?></.,";
+
+		@Override
+		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.insertString(fb, offset, filtered, attr);
+		}
+
+		@Override
+		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
+				throws BadLocationException {
+			if (str == null) {
+				return;
+			}
+			String filtered = filterString(str);
+			super.replace(fb, offset, length, filtered, attrs);
+		}
+
+		private String filterString(String str) {
+			StringBuilder filtered = new StringBuilder();
+			for (int i = 0; i < str.length(); i++) {
+				char c = str.charAt(i);
+				if (ALLOWED_CHARACTERS.indexOf(c) != -1 && DISALLOWED_CHARACTERS.indexOf(c) == -1) {
+					filtered.append(c);
+				}
+			}
+			return filtered.toString().substring(0, Math.min(filtered.length(), 15));
+		}
 	}
 }

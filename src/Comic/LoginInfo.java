@@ -31,6 +31,7 @@ public class LoginInfo {
 	private static String q2Answer;
 	private static String q3Answer;
 	private static int userID;
+	private static String cover;
 
 	// Login Screen
 	public static void setUsername(String uName) {
@@ -276,10 +277,20 @@ public class LoginInfo {
 	public static void setQ3Answer(String q3Answer) {
 		LoginInfo.q3Answer = q3Answer;
 	}
+
 	public static int getUserID() {
 		return userID;
 	}
+
 	public static void setUserID(int userID) {
 		LoginInfo.userID = userID;
+	}
+
+	public static String getCover() {
+		return cover;
+	}
+
+	public static void setCover(String cover) {
+		LoginInfo.cover = cover;
 	}
 }

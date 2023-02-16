@@ -457,7 +457,11 @@ public class UserInterface extends JFrame {
 		if (row >= 0 && col == 0) {
 			// Get the value of the 4th column of the selected row
 			String selectedValue = (String) searchSeriesTable.getValueAt(row, 4);
+			System.out.println("selected value = " + selectedValue);
 			LoginInfo.setIdView(selectedValue);
+			LoginInfo.setPublisherID(selectedValue);
+			System.out.println("setIDView " + LoginInfo.getIdView());
+			System.out.println("setPublisherID " + LoginInfo.getPublisherID());
 			List<Map<String, String>> publisherInfo = DBConnection.pullPublisherInfo(selectedValue);
 			if (publisherInfo != null && !publisherInfo.isEmpty()) {
 				Map<String, String> publisherInformation = publisherInfo.get(0);
@@ -472,10 +476,17 @@ public class UserInterface extends JFrame {
 		}
 		if (row >= 0 && col == 1) {
 			String pubID = (String) searchSeriesTable.getValueAt(row, 4);
+			List<Map<String, String>> publisherInfo = DBConnection.pullPublisherInfo(pubID);
+			if (publisherInfo != null && !publisherInfo.isEmpty()) {
+				Map<String, String> publisherInformation = publisherInfo.get(0);
+				String publisherName = publisherInformation.get("name");
+				LoginInfo.setPublisherName(publisherName);
+			}
 			searchComicsPanel.add(seriesBackBtn);
 			String selectedValue = (String) searchSeriesTable.getValueAt(row, 3);
 			String selectedName = (String) searchSeriesTable.getValueAt(row, 2);
 			LoginInfo.setPublisherID(pubID);
+			LoginInfo.setIdView(pubID);
 			LoginInfo.setSeriesName(selectedName);
 			LoginInfo.setSeriesID(selectedValue);
 			DBConnection.pullComics(selectedValue);
