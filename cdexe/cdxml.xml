@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
   <jar>C:\Users\kgesk\OneDrive\Desktop\comicdungeon.jar</jar>
-  <outfile>C:\Users\kgesk\OneDrive\Desktop\CDPics\ComicDungeon.exe</outfile>
+  <outfile>C:\Users\kgesk\OneDrive\Desktop\CDPics\cdexe\ComicDungeon.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
