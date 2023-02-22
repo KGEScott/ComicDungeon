@@ -15,15 +15,13 @@ import javax.swing.JOptionPane;
 
 public class DBConnection {
 
-	private static final String url = "jdbc:mysql://localhost:3306/Comic_Dungeon";
-	private static final String user = "root";
-	private static final String password = "new_password";
+	private static final String url = "";
 
 	public static boolean checkUNnPass(String username, String userPassword) {
 		String pwd = userPassword;
 		boolean nameAndPassInDB = false;
 
-		try (Connection con = DriverManager.getConnection(url, user, password);
+		try (Connection con = DriverManager.getConnection(url);
 				PreparedStatement pstmt = con
 						.prepareStatement("SELECT userName, password, id FROM user WHERE userName = ?")) {
 			pstmt.setString(1, username);
@@ -57,7 +55,7 @@ public class DBConnection {
 		boolean isUsernameInDB = false;
 
 		try {
-			Connection con = DriverManager.getConnection(url, user, password);
+			Connection con = DriverManager.getConnection(url);
 			String sql = "SELECT * FROM user WHERE userName = ?";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, username);
@@ -75,7 +73,7 @@ public class DBConnection {
 
 	public static boolean emailInDB(String email) {
 
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 
 			String sql = "SELECT * FROM user WHERE email = ?";
 			PreparedStatement stmt = con.prepareStatement(sql);
@@ -98,9 +96,9 @@ public class DBConnection {
 			String userYear, String userMonth, String userDay, String userPassCA, int q1Index, String q1Answer,
 			int q2Index, String q2Answer, int q3Index, String q3Answer) {
 
-		String url = "jdbc:mysql://localhost:3306/Comic_Dungeon", user = "root", password = "new_password", id = null;
+		String id = null;
 
-		try (Connection con = DriverManager.getConnection(url, user, password);
+		try (Connection con = DriverManager.getConnection(url);
 				Statement stmt = con.createStatement()) {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			String month = LoginInfo.getMonth();
@@ -149,7 +147,7 @@ public class DBConnection {
 	}
 
 	public static List<String> pullUserInfo(String username) {
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			PreparedStatement pstmt = con.prepareStatement(
 					"SELECT userName, firstName, lastName, email, DoB, password FROM user WHERE userName = ?");
 			pstmt.setString(1, username);
@@ -171,7 +169,7 @@ public class DBConnection {
 	}
 
 	public static boolean changePW(String username, String prevPass, String newPass) {
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			String cPWQ = "SELECT password FROM user WHERE userName = ?";
 			PreparedStatement pstmt = con.prepareStatement(cPWQ);
 			pstmt.setString(1, username);
@@ -194,7 +192,7 @@ public class DBConnection {
 	}
 
 	public static List<Map<String, String>> pullPublisher(String getPublisher) {
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			String pubSQL = "SELECT id, name FROM gcd_publisher WHERE name LIKE ? ORDER BY name";
 			PreparedStatement pstmt = con.prepareStatement(pubSQL);
 			pstmt.setString(1, "%" + getPublisher + "%");
@@ -220,7 +218,7 @@ public class DBConnection {
 	public static List<Map<String, String>> pullSeries(String idEnter) {
 		try {
 			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
+			Connection con = DriverManager.getConnection(url);
 			String pubSQL = "SELECT id, name FROM gcd_series WHERE publisher_id = ? ORDER BY name, year_began";
 			PreparedStatement pstmt = con.prepareStatement(pubSQL);
 			pstmt.setString(1, idEnter);
@@ -251,7 +249,7 @@ public class DBConnection {
 
 	public static List<Map<String, String>> pullSeriesName(String seriesName) {
 
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			String pubSQL = "SELECT id, name, publisher_id FROM gcd_series WHERE name LIKE ? ORDER BY name, year_began";
 			PreparedStatement pstmt = con.prepareStatement(pubSQL);
 			pstmt.setString(1, "%" + seriesName + "%");
@@ -280,7 +278,7 @@ public class DBConnection {
 
 		try {
 			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
+			Connection con = DriverManager.getConnection(url);
 			String pubSQL = "SELECT id, name, year_began, notes, series_count, created, issue_count FROM gcd_publisher WHERE id = ? ORDER BY name";
 			PreparedStatement pstmt = con.prepareStatement(pubSQL);
 			pstmt.setString(1, idView);
@@ -315,7 +313,7 @@ public class DBConnection {
 	}
 
 	public static List<Map<String, String>> pullComics(String seriesID) {
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			String pubSQL = "SELECT volume, number, publication_date, id FROM gcd_issue WHERE series_id = ? ORDER BY number, publication_date";
 			PreparedStatement pstmt = con.prepareStatement(pubSQL);
 			pstmt.setString(1, seriesID);
@@ -342,7 +340,7 @@ public class DBConnection {
 	public static List<Map<String, String>> pullSeriesInfo(String seriesID) {
 
 		try {
-			Connection con = DriverManager.getConnection(url, user, password);
+			Connection con = DriverManager.getConnection(url);
 			String pubSQL = "SELECT id, name, year_began, year_ended, notes, color, dimensions, paper_stock,"
 					+ "binding, publishing_format FROM gcd_series WHERE id = ? ORDER BY name";
 			PreparedStatement pstmt = con.prepareStatement(pubSQL);
@@ -379,7 +377,7 @@ public class DBConnection {
 
 	public static List<Map<String, String>> pullComicsInfo(String comicsID) {
 
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			String pubSQL = "SELECT id, number, publication_date, price, page_count, editing, notes, on_sale_date  FROM gcd_issue WHERE id = ?";
 			PreparedStatement pstmt = con.prepareStatement(pubSQL);
 			pstmt.setString(1, comicsID);
@@ -412,7 +410,7 @@ public class DBConnection {
 		boolean nameAndEmailInDB = false;
 		try {
 			// Open a connection to the database and set the character encoding to UTF-8mb4
-			Connection con = DriverManager.getConnection(url, user, password);
+			Connection con = DriverManager.getConnection(url);
 			PreparedStatement stmt = con
 					.prepareStatement("SELECT id, username, email FROM user WHERE username = ? AND email = ?");
 			stmt.setString(1, username);
@@ -442,7 +440,7 @@ public class DBConnection {
 
 	public static void pullQuestions(int userID) {
 
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			// Execute a query to retrieve data from the "security_questions" table
 			PreparedStatement stmt = con
 					.prepareStatement("SELECT q1, q2, q3 FROM security_questions WHERE user_id = ?");
@@ -470,7 +468,7 @@ public class DBConnection {
 
 		boolean securityAnswersSame = false;
 
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			PreparedStatement stmt = con
 					.prepareStatement("SELECT securityQ1, securityQ2, securityQ3 FROM user WHERE id = ?");
 			stmt.setInt(1, id);
@@ -505,7 +503,7 @@ public class DBConnection {
 
 		String hashedPassword = BCrypt.hashpw(newPass, BCrypt.gensalt());
 
-		try (Connection con = DriverManager.getConnection(url, user, password);
+		try (Connection con = DriverManager.getConnection(url);
 				PreparedStatement stmt = con.prepareStatement("UPDATE user SET password = ? WHERE id = ?")) {
 
 			// Execute a query to change the password within the database.
@@ -519,7 +517,7 @@ public class DBConnection {
 	}
 
 	public static void addComic(String userName, String comicID, String seriesID, String publisherID, String cover) {
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			con.setAutoCommit(false);
 			String sql = "SELECT id FROM user WHERE username = ?";
 			PreparedStatement selectStmt = con.prepareStatement(sql);
@@ -567,7 +565,7 @@ public class DBConnection {
 	}
 
 	public static List<Map<String, String>> pullCollection(int userID) {
-		try (Connection con = DriverManager.getConnection(url, user, password)) {
+		try (Connection con = DriverManager.getConnection(url)) {
 			String pubSQL = "SELECT uc.comic_id, uc.series_id, uc.publisher_id, uc.count, uc.cover, gs.name AS series_name, gp.name AS publisher_name, gi.number "
 					+ "FROM user_collection uc " + "JOIN gcd_series gs ON uc.series_id = gs.id "
 					+ "JOIN gcd_publisher gp ON uc.publisher_id = gp.id " + "JOIN gcd_issue gi ON uc.comic_id = gi.id "

@@ -20,9 +20,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
 
 public class ForgotPassword extends JFrame {
 
@@ -414,68 +411,5 @@ public class ForgotPassword extends JFrame {
 				dispose();
 			}
 		});
-	}
-
-	public class EscapeSymbolDocumentFilter extends DocumentFilter {
-		@Override
-		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.insertString(fb, offset, filtered, attr);
-		}
-
-		@Override
-		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.replace(fb, offset, length, filtered, attrs);
-		}
-
-		private String filterString(String str) {
-			// Remove all characters that are not letters or numbers
-			return str.replaceAll("[^a-zA-Z0-9]", "");
-		}
-	}
-
-	public class PasswordDocumentFilter extends DocumentFilter {
-		private static final String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*~`";
-		private static final String DISALLOWED_CHARACTERS = "+_)(=-09|}{\\][\":';?></.,";
-
-		@Override
-		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.insertString(fb, offset, filtered, attr);
-		}
-
-		@Override
-		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.replace(fb, offset, length, filtered, attrs);
-		}
-
-		private String filterString(String str) {
-			StringBuilder filtered = new StringBuilder();
-			for (int i = 0; i < str.length(); i++) {
-				char c = str.charAt(i);
-				if (ALLOWED_CHARACTERS.indexOf(c) != -1 && DISALLOWED_CHARACTERS.indexOf(c) == -1) {
-					filtered.append(c);
-				}
-			}
-			return filtered.toString().substring(0, Math.min(filtered.length(), 15));
-		}
 	}
 }

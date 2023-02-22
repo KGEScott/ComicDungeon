@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -24,11 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.DocumentFilter;
 
 public class CreateAccount extends JFrame {
 
@@ -189,7 +183,6 @@ public class CreateAccount extends JFrame {
 		FieldPanel.add(passTextArea);
 
 		JPasswordField passField = new JPasswordField();
-		((AbstractDocument) passField.getDocument()).setDocumentFilter(new PasswordDocumentFilter());
 		passField.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
 		passField.setBorder(emptyBorder);
 		passField.setForeground(Color.WHITE);
@@ -393,15 +386,7 @@ public class CreateAccount extends JFrame {
 				String userName = userNameField.getText();
 				char[] userPass = passField.getPassword();
 				char[] retypePass = retypePassField.getPassword();
-				String userPassCA = new String();
-				try {
-					Document passwordDoc = passField.getDocument();
-					((AbstractDocument) passwordDoc).setDocumentFilter(new PasswordDocumentFilter());
-					userPassCA = passwordDoc.getText(0, passwordDoc.getLength());
-					((AbstractDocument) passwordDoc).setDocumentFilter(new EscapeSymbolDocumentFilter());
-				} catch (BadLocationException ex) {
-					ex.printStackTrace();
-				}
+				String userPassCA = new String(userPass); // get the password from the password field
 
 				if (userPassCA == null || userPassCA.length() == 0) {
 					JOptionPane.showMessageDialog(null, "Password is required.");
@@ -420,11 +405,11 @@ public class CreateAccount extends JFrame {
 				String error = "";
 				if (firstName.isEmpty() || firstName.length() < 2 || firstName.length() > 20
 						|| !firstName.matches("^[a-zA-Z]*$")) {
-					error += "First name must be between 2 and 20 alphabetical characters.\n";
+					error += "First name must be between 2 and 20 alphabetical characters only.\n";
 				}
 				if (lastName.isEmpty() || lastName.length() < 2 || lastName.length() > 20
 						|| !lastName.matches("^[a-zA-Z]*$")) {
-					error += "Last name must be between 2 and 20 alphabetical characters.\n";
+					error += "Last name must be between 2 and 20 alphabetical characters only.\n";
 				}
 
 				if (userName.length() < 4 || userName.length() > 20 || !userName.matches("^[a-zA-Z0-9]+$")) {
@@ -436,13 +421,13 @@ public class CreateAccount extends JFrame {
 					error += "Email must be between 8 and 45 characters and must be in a valid format.\n";
 				}
 
-				String disallowedPasswordCharacters = "+_)(=-09|}{\\][\":';?></.,~`";
-				if (userPassCA.length() < 8 || userPassCA.length() > 15
-						|| userPassCA.matches(".[" + Pattern.quote(disallowedPasswordCharacters) + "].*")) {
-					error += "Password must be between 8 and 15 characters and must not contain any disallowed characters.\n";
+				if (userPassCA.length() < 8 || userPassCA.length() > 15) {
+					error += "Password must be between 8 and 15 characters.\n";
 				} else if (!userPassCA.matches(".*[a-z].*") || !userPassCA.matches(".*[A-Z].*")
 						|| !userPassCA.matches(".*[!@#$%^&*].*")) {
 					error += "Password must contain at least 1 lowercase letter, 1 uppercase letter, and 1 symbol from !@#$%^&*.\n";
+				} else if (!userPassCA.matches("^[a-zA-Z0-9!@#$%^&*]+$")) {
+					error += "Password contains invalid characters.\n";
 				}
 
 				if (q1Answers.length() > 20 || q2Answers.length() > 20 || q3Answers.length() > 20
@@ -452,8 +437,8 @@ public class CreateAccount extends JFrame {
 				}
 
 				if (error.isEmpty()) {
-					boolean compare = Arrays.equals(userPass, retypePass);
-					if (compare == true) {
+					// Use Arrays.equals() to compare the password and retype password arrays
+					if (Arrays.equals(userPass, retypePass)) {
 						LoginInfo.setFirstName(firstName);
 						LoginInfo.setLastName(lastName);
 						LoginInfo.setEmail(email);
@@ -471,8 +456,11 @@ public class CreateAccount extends JFrame {
 						ButtonActions.ButtonActionsCreateSub();
 						dispose();
 					} else {
-						JOptionPane.showMessageDialog(null, "Your Passwords are not the same, please try again.",
-								"Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Passwords do not match, please try again.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						// Clear the password fields
+						passField.setText("");
+						retypePassField.setText("");
 					}
 				} else {
 					JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE);
@@ -486,68 +474,5 @@ public class CreateAccount extends JFrame {
 			}
 		});
 
-	}
-
-	public class EscapeSymbolDocumentFilter extends DocumentFilter {
-		@Override
-		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.insertString(fb, offset, filtered, attr);
-		}
-
-		@Override
-		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.replace(fb, offset, length, filtered, attrs);
-		}
-
-		private String filterString(String str) {
-			// Remove all characters that are not letters or numbers
-			return str.replaceAll("[^a-zA-Z0-9]", "");
-		}
-	}
-
-	public class PasswordDocumentFilter extends DocumentFilter {
-		private static final String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*~`";
-		private static final String DISALLOWED_CHARACTERS = "+_)(=-09|}{\\][\":';?></.,";
-
-		@Override
-		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.insertString(fb, offset, filtered, attr);
-		}
-
-		@Override
-		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
-				throws BadLocationException {
-			if (str == null) {
-				return;
-			}
-			String filtered = filterString(str);
-			super.replace(fb, offset, length, filtered, attrs);
-		}
-
-		private String filterString(String str) {
-			StringBuilder filtered = new StringBuilder();
-			for (int i = 0; i < str.length(); i++) {
-				char c = str.charAt(i);
-				if (ALLOWED_CHARACTERS.indexOf(c) != -1 && DISALLOWED_CHARACTERS.indexOf(c) == -1) {
-					filtered.append(c);
-				}
-			}
-			return filtered.toString().substring(0, Math.min(filtered.length(), 15));
-		}
 	}
 }

@@ -146,8 +146,7 @@ public class ChangePassword extends JFrame {
 
 				if (error.isEmpty()) {
 					LoginInfo.setPrevPass(oldPass);
-					newPass = BCrypt.hashpw(newPassS, BCrypt.gensalt());
-					LoginInfo.setNewPass(newPass);
+					LoginInfo.setNewPass(newPassS);
 					if (ButtonActions.ButtonActionsSubCPW() == true) {
 						dispose();
 					} else {
@@ -159,6 +158,7 @@ public class ChangePassword extends JFrame {
 				}
 			}
 		});
+		
 
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

@@ -2,6 +2,7 @@ package Comic;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
@@ -17,6 +18,7 @@ import java.util.Map;
 import javax.swing.DefaultButtonModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,6 +30,8 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.plaf.BorderUIResource;
 import javax.swing.table.DefaultTableModel;
 
@@ -168,10 +172,10 @@ public class UserInterface extends JFrame {
 		contentPane.add(panel);
 		panel.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(UserInterface.class.getResource("/Comic/Icons/comicDungeonbit2.png")));
-		lblNewLabel.setBounds(104, 0, 1019, 175);
-		panel.add(lblNewLabel);
+		JLabel comicDungeonIcon = new JLabel("");
+		comicDungeonIcon.setIcon(new ImageIcon(UserInterface.class.getResource("/Comic/Icons/comicDungeonbit2.png")));
+		comicDungeonIcon.setBounds(104, 0, 1019, 175);
+		panel.add(comicDungeonIcon);
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(null);
@@ -262,6 +266,32 @@ public class UserInterface extends JFrame {
 		JTable searchSeriesTable2 = new JTable();
 		searchSeriesScroll2.setViewportView(searchSeriesTable2);
 
+		JEditorPane copyRight2 = new JEditorPane();
+		copyRight2.setBounds(0, 695, 897, 44);
+		searchComicsPanel.add(copyRight2);
+		copyRight2.setContentType("text/html");
+		copyRight2.setText(
+				"<html><span style='color: #555555;'>Data courtesy of the </span><a href='https://www.comics.org/' "
+						+ "style='color: #444444;'>Grand Comics Database\u2122</a> <span style='color: #555555;'>under a "
+						+ "</span><a href='https://creativecommons.org/licenses/by-sa/4.0/' style='color: #444444;'>Creative Commons "
+						+ "Attribution license</a>.<span style='color: #555555;'> Cover thumbnails are used for identification "
+						+ "purposes only. All rights to cover images reserved by the respective copyright holders.  </span></html>");
+		copyRight2.setEditable(false);
+		copyRight2.setBackground(new Color(38, 38, 38));
+		copyRight2.setForeground(Color.WHITE);
+		copyRight2.setFont(new Font("Comic Sans MS", Font.PLAIN, 5));
+		copyRight2.addHyperlinkListener(new HyperlinkListener() {
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+					try {
+						Desktop.getDesktop().browse(e.getURL().toURI());
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		});
+
 		JTable searchTable = new JTable();
 		scrollPane.setViewportView(searchTable);
 
@@ -270,6 +300,32 @@ public class UserInterface extends JFrame {
 
 		JTable comicsTable = new JTable();
 		scrollPane3.setViewportView(comicsTable);
+
+		JEditorPane copyRight = new JEditorPane();
+		copyRight.setBounds(0, 695, 897, 44);
+		searchPublishersPanel.add(copyRight);
+		copyRight.setContentType("text/html");
+		copyRight.setText(
+				"<html><span style='color: #555555;'>Data courtesy of the </span><a href='https://www.comics.org/' "
+						+ "style='color: #444444;'>Grand Comics Database\u2122</a> <span style='color: #555555;'>under a "
+						+ "</span><a href='https://creativecommons.org/licenses/by-sa/4.0/' style='color: #444444;'>Creative Commons "
+						+ "Attribution license</a>.<span style='color: #555555;'> Cover thumbnails are used for identification "
+						+ "purposes only. All rights to cover images reserved by the respective copyright holders.  </span></html>");
+		copyRight.setEditable(false);
+		copyRight.setBackground(new Color(38, 38, 38));
+		copyRight.setForeground(Color.WHITE);
+		copyRight.setFont(new Font("Comic Sans MS", Font.PLAIN, 5));
+		copyRight.addHyperlinkListener(new HyperlinkListener() {
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+					try {
+						Desktop.getDesktop().browse(e.getURL().toURI());
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		});
 
 		changePW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -391,6 +447,8 @@ public class UserInterface extends JFrame {
 				searchSeriesScroll.setViewportView(searchSeriesTable);
 				clickSeriesSearchBtn(searchComicsPanel, getSeriesName, searchSeriesScroll, searchSeriesScroll2,
 						searchSeriesTable, searchSeriesTable2, seriesBackBtn);
+				repaint();
+				revalidate();
 			}
 		});
 
@@ -430,6 +488,7 @@ public class UserInterface extends JFrame {
 
 			}
 		});
+
 	}
 
 	public class FixedStateButtonModel extends DefaultButtonModel {
