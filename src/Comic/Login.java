@@ -1,15 +1,21 @@
 package Comic;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -26,7 +32,7 @@ public class Login extends JFrame {
 	private static final long serialVersionUID = -2093583572269751429L;
 	public static String userName;
 //	private static String userPass;
-	private JPanel contentPane;
+	// private JPanel contentPane;
 
 	/**
 	 * Launch the application.
@@ -36,6 +42,7 @@ public class Login extends JFrame {
 			public void run() {
 				try {
 					Login frame = new Login();
+					frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 					frame.setVisible(true);
 					frame.setLocationRelativeTo(null);
 				} catch (Exception e) {
@@ -54,42 +61,80 @@ public class Login extends JFrame {
 	public Login() {
 
 		setTitle("Comic Dungeon");
-		setResizable(false);
 		ImageIcon icon = new ImageIcon(Login.class.getResource("/Comic/Icons/dungeon door 2.png"));
 		Image image = icon.getImage();
 		setIconImage(image);
-		setBackground(new Color(128, 128, 128));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1201, 1000);
-		contentPane = new JPanel();
-		contentPane.setBackground(new Color(128, 128, 128));
+
+		// Get the screen size
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+		// Set the JFrame bounds to the screen size
+		setBounds(0, 0, screenSize.width, screenSize.height);
+		setMinimumSize(new Dimension(1000, 800));
+
+		JPanel contentPane = new JPanel();
+		contentPane.setBackground(Color.BLACK);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(null);
 		setContentPane(contentPane);
+
+		JLayeredPane layeredPane = new JLayeredPane();
+		layeredPane.setBounds(0, 0, screenSize.width, screenSize.height);
+		contentPane.add(layeredPane);
+
+		JPanel backgroundPanel = new JPanel();
+		backgroundPanel.setBackground(Color.BLACK);
+		backgroundPanel.setLayout(new BorderLayout());
+		backgroundPanel.setBounds(0, 0, screenSize.width, screenSize.height);
+		layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
+
+		JLabel backgroundImage = new JLabel();
+		backgroundImage.setHorizontalAlignment(SwingConstants.CENTER);
+		backgroundImage.setVerticalAlignment(SwingConstants.TOP);
+		backgroundImage.setBounds(0, 0, screenSize.width, screenSize.height);
+		backgroundImage.setIcon(new ImageIcon(Login.class.getResource("/Comic/Icons/dungeonbg1.jpg")));
+		backgroundPanel.add(backgroundImage);
 
 		JLabel frameBanner = new JLabel();
 		frameBanner.setVerticalAlignment(SwingConstants.TOP);
-		frameBanner.setBounds(132, 11, 968, 300);
-		frameBanner.setHorizontalAlignment(SwingConstants.CENTER);
+		frameBanner.setBounds(screenSize.width / 2 - 484, 50, 968, 300);
+		frameBanner.setOpaque(false);
+		layeredPane.add(frameBanner, JLayeredPane.PALETTE_LAYER);
 		frameBanner.setIcon(new ImageIcon(Login.class.getResource("/Comic/Icons/comicDungeonbit3.png")));
-
-		JPanel bannerPannel = new JPanel();
-		bannerPannel.setBounds(995, 160, 0, 0);
-		contentPane.setLayout(null);
-		contentPane.add(frameBanner);
-		contentPane.add(bannerPannel);
-		bannerPannel.setLayout(null);
-
-		JPanel backgroundPanel = new JPanel();
-		backgroundPanel.setBounds(0, 0, 1185, 961);
-		contentPane.add(backgroundPanel);
-		backgroundPanel.setLayout(null);
 
 		JPanel loginUI = new JPanel();
 		loginUI.setLayout(null);
 		loginUI.setBorder(new LineBorder(new Color(35, 35, 35), 15));
 		loginUI.setBackground(new Color(3, 66, 80));
-		loginUI.setBounds(486, 497, 188, 257);
-		backgroundPanel.add(loginUI);
+		loginUI.setPreferredSize(new Dimension(188, 257));
+		loginUI.setBounds(screenSize.width / 2 - 94, screenSize.height / 2 - 128, 188, 257);
+		layeredPane.add(loginUI, JLayeredPane.MODAL_LAYER);
+
+		addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {
+				Dimension size = e.getComponent().getSize();
+				int centerX = size.width / 2;
+				int centerY = size.height / 2;
+
+				// Update the position of the banner
+				int bannerWidth = frameBanner.getPreferredSize().width;
+				int bannerHeight = frameBanner.getPreferredSize().height;
+				int bannerX = centerX - bannerWidth / 2;
+				int bannerY = 50;
+				frameBanner.setBounds(bannerX, bannerY, bannerWidth, bannerHeight);
+
+				// Update the position of the loginUI
+				int loginUIWidth = loginUI.getPreferredSize().width;
+				int loginUIHeight = loginUI.getPreferredSize().height;
+				int loginUIX = centerX - loginUIWidth / 2;
+				int loginUIY = centerY - loginUIHeight / 2;
+				loginUI.setBounds(loginUIX, loginUIY, loginUIWidth, loginUIHeight);
+
+				// Update the size of the background image
+				backgroundImage.setSize(size);
+			}
+		});
 
 		JTextArea txtrUsername = new JTextArea();
 		Properties.setLoginTextProperties(txtrUsername, "UserName: ");
@@ -127,12 +172,12 @@ public class Login extends JFrame {
 		// Set other properties
 		Properties.setLoginTextFieldProperties(userNameField);
 
-		JLabel backgroundImage = new JLabel();
-		backgroundImage.setHorizontalAlignment(SwingConstants.CENTER);
-		backgroundImage.setVerticalAlignment(SwingConstants.TOP);
-		backgroundImage.setBounds(0, 0, 1200, 1000);
-		backgroundImage.setIcon(new ImageIcon(Login.class.getResource("/Comic/Icons/dungeonbg1.jpg")));
-		backgroundPanel.add(backgroundImage);
+//		JLabel backgroundImage = new JLabel();
+//		backgroundImage.setHorizontalAlignment(SwingConstants.CENTER);
+//		backgroundImage.setVerticalAlignment(SwingConstants.TOP);
+//		backgroundImage.setBounds(0, 0, 1200, 1000);
+//		backgroundImage.setIcon(new ImageIcon(Login.class.getResource("/Comic/Icons/dungeonbg1.jpg")));
+//		backgroundPanel.add(backgroundImage);
 
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

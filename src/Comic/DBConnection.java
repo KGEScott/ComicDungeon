@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 
 public class DBConnection {
 
-	private static final String url = "";
+	private static final String url = "url goes here";
 
 	public static boolean checkUNnPass(String username, String userPassword) {
 		String pwd = userPassword;
@@ -98,8 +98,7 @@ public class DBConnection {
 
 		String id = null;
 
-		try (Connection con = DriverManager.getConnection(url);
-				Statement stmt = con.createStatement()) {
+		try (Connection con = DriverManager.getConnection(url); Statement stmt = con.createStatement()) {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			String month = LoginInfo.getMonth();
 			int monthNum = month.equals("Jan") ? 1

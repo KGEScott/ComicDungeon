@@ -158,7 +158,6 @@ public class ChangePassword extends JFrame {
 				}
 			}
 		});
-		
 
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

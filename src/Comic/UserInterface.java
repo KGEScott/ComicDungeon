@@ -1,13 +1,23 @@
 package Comic;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -26,22 +36,28 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.plaf.BorderUIResource;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.StyledEditorKit;
 
 public class UserInterface extends JFrame {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
+//	private JPanel contentPane;
 	private Border emptyBorder;
+	public static String currentSeriesScroll;
 	public static String getPublisherNameToSearch;
 	public static String idView;
 	public static String idEnter;
@@ -61,8 +77,16 @@ public class UserInterface extends JFrame {
 			public void run() {
 				try {
 					UserInterface frame = new UserInterface();
+					frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 					frame.setVisible(true);
 					frame.setLocationRelativeTo(null);
+					frame.addComponentListener(new ComponentAdapter() {
+						public void componentResized(ComponentEvent e) {
+							frame.getContentPane().revalidate();
+							frame.getContentPane().repaint();
+						}
+					});
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -78,187 +102,384 @@ public class UserInterface extends JFrame {
 		Image image = icon.getImage();
 		setIconImage(image);
 		setTitle("Comic Dungeon");
-		setResizable(false);
+		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1201, 1000);
-		contentPane = new JPanel();
-		contentPane.setBackground(new Color(46, 46, 46));
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
+
+		// Set the JFrame bounds to the screen size
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int screenWidth = screenSize.width;
+		int screenHeight = screenSize.height;
+
+		setBounds(screenWidth / 2 - 640, screenHeight / 2 - 400, 1280, 800);
+		setMinimumSize(new Dimension(1250, 845));
+
+		JPanel bannerPanel = new JPanel();
+		bannerPanel.setBorder(new LineBorder(new Color(73, 73, 73), 10, true));
+		bannerPanel.setBackground(new Color(30, 30, 30));
+		bannerPanel.setLayout(new GridBagLayout());
+
+		JLabel comicDungeonIcon = new JLabel("");
+		comicDungeonIcon.setIcon(new ImageIcon(UserInterface.class.getResource("/Comic/Icons/comicDungeonbit2.png")));
+
+		// Set GridBagConstraints to center the image
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		bannerPanel.add(comicDungeonIcon, gbc);
+
+		JPanel menuButtonPanel = new JPanel();
+		menuButtonPanel.setBorder(new LineBorder(new Color(44, 44, 44), 5, true));
+		menuButtonPanel.setBackground(new Color(2, 48, 57));
+		menuButtonPanel.setLayout(new BorderLayout());
+
+		// Set the preferred size to be 50 pixels wider
+		menuButtonPanel.setPreferredSize(new Dimension(250, 800));
 
 		CardLayout c1 = new CardLayout();
-		// CardLayout s1 = new CardLayout();
-		JPanel panel_2 = new JPanel();
-		panel_2.setBackground(new Color(73, 73, 73));
-		panel_2.setBounds(266, 197, 897, 739);
-		contentPane.add(panel_2);
-		panel_2.setLayout(c1);
-		c1.show(panel_2, "Search Publisher Panel");
+		JPanel infoPanel = new JPanel();
+		infoPanel.setBackground(new Color(73, 73, 73));
+		infoPanel.setLayout(c1);
 
-		JPanel searchPublishersPanel = new JPanel();
+		JPanel searchPublishersPanel = new JPanel(new BorderLayout());
 		searchPublishersPanel.setBackground(new Color(38, 38, 38));
-		panel_2.add(searchPublishersPanel, "Search Publisher Panel");
-		searchPublishersPanel.setLayout(null);
+		infoPanel.add(searchPublishersPanel, "Search Publisher Panel");
+
+		JPanel searchComicsPanel = new JPanel(new BorderLayout());
+		searchComicsPanel.setBackground(new Color(38, 38, 38));
+		infoPanel.add(searchComicsPanel, "Search Comics Panel");
+
+		JPanel myComicsPanel = new JPanel(new BorderLayout());
+		myComicsPanel.setBackground(new Color(38, 38, 38));
+		myComicsPanel.setLayout(new BorderLayout());
+		infoPanel.add(myComicsPanel, "My Comics Panel");
 
 		JPanel accountPanel = new JPanel();
 		accountPanel.setBackground(new Color(38, 38, 38));
-		accountPanel.setBounds(10, 11, 877, 717);
-		panel_2.add(accountPanel, "Account Panel");
-		accountPanel.setLayout(null);
+		accountPanel.setLayout(new BorderLayout());
+		infoPanel.add(accountPanel, "Account Panel");
 
-		JTextArea txtrTestingAccountpanel = new JTextArea();
-		txtrTestingAccountpanel.setForeground(new Color(192, 192, 192));
-		txtrTestingAccountpanel.setBackground(new Color(59, 59, 59));
-		txtrTestingAccountpanel.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
-		txtrTestingAccountpanel.setEditable(false);
+		JPanel contentPane = new JPanel();
+		contentPane.setBackground(new Color(46, 46, 46));
+		contentPane.setLayout(new BorderLayout());
+		contentPane.add(bannerPanel, BorderLayout.NORTH);
+		contentPane.add(menuButtonPanel, BorderLayout.WEST);
+		contentPane.add(infoPanel, BorderLayout.CENTER);
 
-		JButton changePW = new JButton("Change Password");
-		Properties.setLoginButtonProperties(changePW, 372, 540, 134, 23);
-		accountPanel.add(changePW);
-
-		List<String> accountInfo = DBConnection.pullUserInfo(LoginInfo.getUsername());
-		// txtrTestingAccountPanel continuation (moved button forward)
-		txtrTestingAccountpanel
-				.setText("                    Account Information" + "\n\n\n\n FirstName:        " + accountInfo.get(1)
-						+ "\n\n\n\n Last Name:        " + accountInfo.get(2) + "\n\n\n\n Email:              "
-						+ accountInfo.get(3) + "\n\n\n\n Date of Birth:     " + accountInfo.get(4)
-						+ "\n\n\n\n Username:         " + accountInfo.get(0) + "\n\n\n\n Change Password:");
-		txtrTestingAccountpanel.setBounds(229, 11, 454, 695);
-		accountPanel.add(txtrTestingAccountpanel);
-
-		JPanel myComicsPanel = new JPanel();
-		myComicsPanel.setBackground(new Color(38, 38, 38));
-		panel_2.add(myComicsPanel, "My Comics Panel");
-		myComicsPanel.setLayout(null);
-
-		JPanel searchComicsPanel = new JPanel();
-		searchComicsPanel.setBackground(new Color(38, 38, 38));
-		panel_2.add(searchComicsPanel, "Search Comics Panel");
-		searchComicsPanel.setLayout(null);
+		setContentPane(contentPane);
 
 		JTextField getSeriesName = new JTextField();
 		getSeriesName.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
 		getSeriesName.setBorder(emptyBorder);
 		getSeriesName.setForeground(Color.WHITE);
 		getSeriesName.setBackground(new Color(73, 73, 73));
-		getSeriesName.setBounds(251, 16, 216, 20);
-		searchComicsPanel.add(getSeriesName);
-		getSeriesName.setColumns(10);
+		getSeriesName.setPreferredSize(new Dimension(216, 20));
+//		searchComicsPanel.add(getSeriesName, BorderLayout.WEST);
 
 		JTextField getPublisherName = new JTextField();
 		getPublisherName.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
 		getPublisherName.setBorder(emptyBorder);
 		getPublisherName.setForeground(Color.WHITE);
 		getPublisherName.setBackground(new Color(73, 73, 73));
-		getPublisherName.setBounds(251, 16, 216, 20);
-		searchPublishersPanel.add(getPublisherName);
-		getPublisherName.setColumns(10);
+		getPublisherName.setPreferredSize(new Dimension(216, 20));
+//		searchPublishersPanel.add(getPublisherName, BorderLayout.WEST);
+
+		JTextArea accountPanelInfo = new JTextArea();
+		accountPanelInfo.setPreferredSize(new Dimension(216, 20));
+		accountPanelInfo.setEditable(false);
+		accountPanelInfo.setFocusable(false);
 
 		JButton seriesSearchBtn = new JButton("Search");
 		Properties.setLoginButtonProperties(seriesSearchBtn, 477, 16, 89, 20);
-		searchComicsPanel.add(seriesSearchBtn);
+		seriesSearchBtn.setPreferredSize(new Dimension(89, 20));
+//		searchComicsPanel.add(seriesSearchBtn, BorderLayout.CENTER);
 		searchComicsPanel.getRootPane().setDefaultButton(seriesSearchBtn);
 
 		JButton publisherSearchBtn = new JButton("Search");
 		Properties.setLoginButtonProperties(publisherSearchBtn, 477, 16, 89, 20);
-		searchPublishersPanel.add(publisherSearchBtn);
+		publisherSearchBtn.setPreferredSize(new Dimension(89, 20));
+//		searchPublishersPanel.add(publisherSearchBtn, BorderLayout.CENTER);
 		searchPublishersPanel.getRootPane().setDefaultButton(publisherSearchBtn);
 
-		JPanel panel = new JPanel();
-		panel.setBorder(new LineBorder(new Color(73, 73, 73), 10, true));
-		panel.setBackground(new Color(30, 30, 30));
-		panel.setBounds(0, 0, 1185, 175);
-		contentPane.add(panel);
-		panel.setLayout(null);
+		Properties.setLoginButtonProperties(publisherSearchBtn, 477, 16, 89, 20);
+		publisherSearchBtn.setPreferredSize(new Dimension(89, 20));
 
-		JLabel comicDungeonIcon = new JLabel("");
-		comicDungeonIcon.setIcon(new ImageIcon(UserInterface.class.getResource("/Comic/Icons/comicDungeonbit2.png")));
-		comicDungeonIcon.setBounds(104, 0, 1019, 175);
-		panel.add(comicDungeonIcon);
+		JButton seriesBackBtn = new JButton("Back");
+		Properties.setLoginButtonProperties(seriesBackBtn, 100, 110, 89, 20);
+		publisherSearchBtn.setPreferredSize(new Dimension(89, 20));
 
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(null);
-		panel_1.setBackground(new Color(2, 48, 57));
-		panel_1.setBounds(0, 174, 244, 800);
-		contentPane.add(panel_1);
-		panel_1.setLayout(null);
+		JButton backBtn = new JButton("Back");
+		Properties.setLoginButtonProperties(backBtn, 100, 110, 89, 20);
+		publisherSearchBtn.setPreferredSize(new Dimension(89, 20));
 
 		JButton searchPublishers = new JButton("Search Publishers");
 		Properties.setMainButtonProperties(searchPublishers);
+		searchPublishers.setBorder(new LineBorder(Color.BLACK, 1));
 		searchPublishers.setModel(new FixedStateButtonModel());
+		menuButtonPanel.setLayout(new GridLayout(0, 1, 0, 0));
 		searchPublishers.setBackground(new Color(23, 23, 23));
-		searchPublishers.setBounds(0, 11, 244, 52);
-		panel_1.add(searchPublishers);
-
-		JButton userComics = new JButton("My Comics");
-		Properties.setMainButtonProperties(userComics);
-		userComics.setModel(new FixedStateButtonModel());
-		userComics.setBackground(new Color(3, 66, 80));
-		userComics.setBounds(0, 125, 244, 52);
-		panel_1.add(userComics);
+		searchPublishers.setMinimumSize(new Dimension(244, 52));
+		menuButtonPanel.add(searchPublishers);
 
 		JButton searchComics = new JButton("Search Comics");
 		Properties.setMainButtonProperties(searchComics);
+		searchComics.setBorder(new LineBorder(Color.BLACK, 1));
 		searchComics.setModel(new FixedStateButtonModel());
 		searchComics.setBackground(new Color(3, 66, 80));
-		searchComics.setBounds(0, 68, 244, 52);
-		panel_1.add(searchComics);
+		searchComics.setMinimumSize(new Dimension(244, 52));
+		// searchComics.setBounds(0, 68, 244, 52);
+		menuButtonPanel.add(searchComics);
+
+		JButton userComics = new JButton("My Comics");
+		Properties.setMainButtonProperties(userComics);
+		userComics.setBorder(new LineBorder(Color.BLACK, 1));
+		userComics.setModel(new FixedStateButtonModel());
+		userComics.setBackground(new Color(3, 66, 80));
+		userComics.setMinimumSize(new Dimension(244, 52));
+		// userComics.setBounds(0, 125, 244, 52);
+		menuButtonPanel.add(userComics);
 
 		JButton accountButton = new JButton("Account");
 		Properties.setMainButtonProperties(accountButton);
+		accountButton.setBorder(new LineBorder(Color.BLACK, 1));
 		accountButton.setModel(new FixedStateButtonModel());
 		accountButton.setBackground(new Color(3, 66, 80));
-		accountButton.setBounds(0, 182, 244, 52);
-		panel_1.add(accountButton);
+		accountButton.setMinimumSize(new Dimension(244, 52));
+		// accountButton.setBounds(0, 182, 244, 52);
+		menuButtonPanel.add(accountButton);
 
 		JButton signOut = new JButton("Sign Out");
 		Properties.setMainButtonProperties(signOut);
+		signOut.setBorder(new LineBorder(Color.BLACK, 1));
 		signOut.setModel(new FixedStateButtonModel());
 		signOut.setBackground(new Color(3, 66, 80));
-		signOut.setBounds(0, 725, 244, 52);
-		panel_1.add(signOut);
+		signOut.setMinimumSize(new Dimension(244, 52));
+		// signOut.setBounds(0, 725, 244, 52);
+		menuButtonPanel.add(signOut);
+
+		JLabel space1 = new JLabel("");
+		menuButtonPanel.add(space1);
+
+		JLabel space2 = new JLabel("");
+		menuButtonPanel.add(space2);
+
+		JLabel space3 = new JLabel("");
+		menuButtonPanel.add(space3);
+
+		JLabel space4 = new JLabel("");
+		menuButtonPanel.add(space4);
+
+		JPanel searchPanel = new JPanel();
+		searchPanel.setLayout(new BorderLayout());
+		searchPanel.setBackground(new Color(38, 38, 38));
+
+		// Create a new panel for the text field, search button, and back button
+		JPanel searchInputPanel = new JPanel(new FlowLayout());
+		searchInputPanel.setBackground(new Color(38, 38, 38));
+		searchInputPanel.add(getPublisherName);
+		searchInputPanel.add(publisherSearchBtn);
+		searchInputPanel.add(backBtn);
+		searchPanel.add(searchInputPanel, BorderLayout.NORTH);
+
+		JTextPane helpTextPane = new JTextPane();
+		helpTextPane.setBackground(new Color(38, 38, 38));
+		helpTextPane.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		helpTextPane.setForeground(Color.WHITE);
+		helpTextPane.setEditorKit(new StyledEditorKit()); // Set the editor kit to use styled documents
+		StyledDocument doc = new DefaultStyledDocument();
+		helpTextPane.setStyledDocument(doc);
+		SimpleAttributeSet center = new SimpleAttributeSet();
+		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+		doc.setParagraphAttributes(0, doc.getLength(), center, false);
+		helpTextPane.setText(
+				"For additional details about your selection, click 'View'. To see all series or comics within, click 'Enter'.");
+		searchPanel.add(helpTextPane, BorderLayout.CENTER);
+
+		JPanel searchPanel2 = new JPanel();
+		searchPanel2.setLayout(new BorderLayout());
+		searchPanel2.setBackground(new Color(38, 38, 38));
+
+		// Create a new panel for the text field, search button, and back button
+		JPanel searchInputPanel2 = new JPanel(new FlowLayout());
+		searchInputPanel2.setBackground(new Color(38, 38, 38));
+		searchInputPanel2.add(getSeriesName);
+		searchInputPanel2.add(seriesSearchBtn);
+		searchInputPanel2.add(seriesBackBtn);
+		searchPanel2.add(searchInputPanel2, BorderLayout.NORTH);
+
+		JTextPane helpTextPane2 = new JTextPane();
+		helpTextPane2.setBackground(new Color(38, 38, 38));
+		helpTextPane2.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		helpTextPane2.setForeground(Color.WHITE);
+		helpTextPane2.setEditorKit(new StyledEditorKit()); // Set the editor kit to use styled documents
+		StyledDocument doc2 = new DefaultStyledDocument();
+		helpTextPane2.setStyledDocument(doc2);
+		SimpleAttributeSet center2 = new SimpleAttributeSet();
+		StyleConstants.setAlignment(center2, StyleConstants.ALIGN_CENTER);
+		doc2.setParagraphAttributes(0, doc2.getLength(), center2, false);
+		helpTextPane2.setText(
+				"For additional details about your selection, click 'View'. To see all series or comics within, click 'Enter'.");
+		searchPanel2.add(helpTextPane2, BorderLayout.CENTER);
+
+		searchComicsPanel.add(searchPanel2, BorderLayout.NORTH);
+		searchPublishersPanel.add(searchPanel, BorderLayout.NORTH);
+
+		JButton changePW = new JButton("Change Password");
+		Properties.setLoginButtonProperties(changePW, 372, 540, 134, 23);
+
+		List<String> accountInfo = DBConnection.pullUserInfo(LoginInfo.getUsername());
+		JTextArea accountInfoText = new JTextArea();
+		accountInfoText.setText("            Account Information" + "\n\n FirstName:        " + accountInfo.get(1)
+				+ "\n\n Last Name:        " + accountInfo.get(2) + "\n\n Email:              " + accountInfo.get(3)
+				+ "\n\n Date of Birth:     " + accountInfo.get(4) + "\n\n Username:         " + accountInfo.get(0));
+		accountInfoText.setForeground(new Color(192, 192, 192));
+		accountInfoText.setBackground(new Color(48, 48, 48));
+		accountInfoText.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
+		accountInfoText.setBorder(new LineBorder(new Color(28, 28, 28), 10));
+		accountInfoText.setPreferredSize(accountInfoText.getMinimumSize());
+
+		JPanel accountInfoPanel = new JPanel(new GridBagLayout());
+		accountInfoPanel.setBackground(new Color(38, 38, 38));
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.insets = new Insets(-200, 0, 0, 0);
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		accountInfoPanel.add(accountInfoText, constraints);
+
+		// Set the preferred size of the JPanel to the desired minimum size
+		accountInfoPanel.setPreferredSize(new Dimension(984, 778));
+
+		GridBagConstraints constraints2 = new GridBagConstraints();
+		constraints2.gridx = 0;
+		constraints2.gridy = GridBagConstraints.RELATIVE;
+		constraints2.insets = new Insets(0, 100, 0, 100);
+		constraints2.fill = GridBagConstraints.HORIZONTAL;
+		accountInfoPanel.add(changePW, constraints2);
+
+		accountPanel.add(accountInfoPanel, BorderLayout.CENTER);
+
+		searchPublishers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				c1.show(infoPanel, "Search Publisher Panel");
+				searchPublishers.setBackground(new Color(23, 23, 23));
+				accountButton.setBackground(new Color(3, 66, 80));
+				searchComics.setBackground(new Color(3, 66, 80));
+				userComics.setBackground(new Color(3, 66, 80));
+				revalidate();
+				repaint();
+			}
+		});
+
+		searchComics.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				c1.show(infoPanel, "Search Comics Panel");
+				searchComics.setBackground(new Color(23, 23, 23));
+				userComics.setBackground(new Color(3, 66, 80));
+				accountButton.setBackground(new Color(3, 66, 80));
+				searchPublishers.setBackground(new Color(3, 66, 80));
+				revalidate();
+				repaint();
+			}
+		});
+
+		userComics.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				c1.show(infoPanel, "My Comics Panel");
+				userComics.setBackground(new Color(23, 23, 23));
+				accountButton.setBackground(new Color(3, 66, 80));
+				searchComics.setBackground(new Color(3, 66, 80));
+				searchPublishers.setBackground(new Color(3, 66, 80));
+				UserCollection userCollectionPanel = new UserCollection();
+				myComicsPanel.add(userCollectionPanel);
+				revalidate();
+				repaint();
+			}
+		});
+		// Action Listeners
+		accountButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				c1.show(infoPanel, "Account Panel");
+				accountButton.setBackground(new Color(23, 23, 23));
+				userComics.setBackground(new Color(3, 66, 80));
+				searchComics.setBackground(new Color(3, 66, 80));
+				searchPublishers.setBackground(new Color(3, 66, 80));
+				revalidate();
+				repaint();
+			}
+		});
+
+		signOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Login.main(null);
+				dispose();
+			}
+		});
+
+		JPanel seriesPanelFlow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		seriesPanelFlow.setBackground(new Color(38, 38, 38));
+		seriesPanelFlow.setPreferredSize(infoPanel.getSize());
+		searchComicsPanel.add(seriesPanelFlow);
 
 		// search Series Search pane
 		JScrollPane searchSeriesScroll = new JScrollPane();
 		searchSeriesScroll.setBorder(emptyBorder);
 		Properties.setPanelProperties(searchSeriesScroll);
 		searchSeriesScroll.getViewport().setBackground(new Color(38, 38, 38));
-		searchComicsPanel.add(searchSeriesScroll);
+		searchSeriesScroll.getViewport().setPreferredSize(new Dimension(900, (screenHeight / 2) - 200));
+		seriesPanelFlow.add(searchSeriesScroll);
 
 		// search series comic pane
 		JScrollPane searchSeriesScroll2 = new JScrollPane();
 		searchSeriesScroll2.setBorder(emptyBorder);
 		Properties.setPanelProperties(searchSeriesScroll2);
 		searchSeriesScroll2.getViewport().setBackground(new Color(38, 38, 38));
-		searchComicsPanel.add(searchSeriesScroll2);
+		searchSeriesScroll2.getViewport().setPreferredSize(new Dimension(900, (screenHeight / 2) - 200));
+		seriesPanelFlow.add(searchSeriesScroll2);
 
-		// publisher pane
+		JPanel pubPanelFlow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		pubPanelFlow.setBackground(new Color(38, 38, 38));
+		pubPanelFlow.setPreferredSize(infoPanel.getSize());
+		searchPublishersPanel.add(pubPanelFlow);
+
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBorder(emptyBorder);
 		Properties.setPanelProperties(scrollPane);
 		scrollPane.getViewport().setBackground(new Color(38, 38, 38));
-		searchPublishersPanel.add(scrollPane);
+		scrollPane.getViewport().setPreferredSize(new Dimension(900, (screenHeight / 2) - 200));
+		pubPanelFlow.add(scrollPane);
 
 		// series pane
 		JScrollPane scrollPane2 = new JScrollPane();
 		scrollPane2.setBorder(emptyBorder);
 		Properties.setPanelProperties(scrollPane2);
 		scrollPane2.getViewport().setBackground(new Color(38, 38, 38));
-		searchPublishersPanel.add(scrollPane2);
+		scrollPane2.getViewport().setPreferredSize(new Dimension(900, (screenHeight / 2) - 200));
+		pubPanelFlow.add(scrollPane2);
 
 		// comics pane
 		JScrollPane scrollPane3 = new JScrollPane();
 		scrollPane3.setBorder(emptyBorder);
 		Properties.setPanelProperties(scrollPane3);
 		scrollPane3.getViewport().setBackground(new Color(38, 38, 38));
-		searchPublishersPanel.add(scrollPane3);
+		scrollPane3.getViewport().setPreferredSize(new Dimension(900, (screenHeight / 2) - 200));
+		pubPanelFlow.add(scrollPane3);
 
-		JButton seriesBackBtn = new JButton("Back");
-		Properties.setLoginButtonProperties(seriesBackBtn, 100, 110, 89, 20);
-
-		JButton backBtn = new JButton("Back");
-		Properties.setLoginButtonProperties(backBtn, 100, 110, 89, 20);
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				int frameHeight = e.getComponent().getHeight();
+				int preferredHeight = frameHeight / 2;
+				searchSeriesScroll.getViewport().setPreferredSize(new Dimension(900, preferredHeight));
+				searchSeriesScroll2.getViewport().setPreferredSize(new Dimension(900, preferredHeight));
+				scrollPane.getViewport().setPreferredSize(new Dimension(900, preferredHeight));
+				scrollPane2.getViewport().setPreferredSize(new Dimension(900, preferredHeight));
+				scrollPane3.getViewport().setPreferredSize(new Dimension(900, preferredHeight));
+				repaint();
+				revalidate();
+			}
+		});
 
 		JTable searchSeriesTable = new JTable();
 		searchSeriesScroll.setViewportView(searchSeriesTable);
@@ -266,9 +487,20 @@ public class UserInterface extends JFrame {
 		JTable searchSeriesTable2 = new JTable();
 		searchSeriesScroll2.setViewportView(searchSeriesTable2);
 
+		JTable searchTable = new JTable();
+		scrollPane.setViewportView(searchTable);
+
+		JTable seriesTable = new JTable();
+		scrollPane2.setViewportView(seriesTable);
+
+		JTable comicsTable = new JTable();
+		scrollPane3.setViewportView(comicsTable);
+
+		JPanel copyRightPanel2 = new JPanel();
+		copyRightPanel2.setBackground(new Color(38, 38, 38));
+		copyRightPanel2.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+
 		JEditorPane copyRight2 = new JEditorPane();
-		copyRight2.setBounds(0, 695, 897, 44);
-		searchComicsPanel.add(copyRight2);
 		copyRight2.setContentType("text/html");
 		copyRight2.setText(
 				"<html><span style='color: #555555;'>Data courtesy of the </span><a href='https://www.comics.org/' "
@@ -292,18 +524,14 @@ public class UserInterface extends JFrame {
 			}
 		});
 
-		JTable searchTable = new JTable();
-		scrollPane.setViewportView(searchTable);
+		copyRightPanel2.add(copyRight2);
+		searchComicsPanel.add(copyRightPanel2, BorderLayout.SOUTH);
 
-		JTable seriesTable = new JTable();
-		scrollPane2.setViewportView(seriesTable);
-
-		JTable comicsTable = new JTable();
-		scrollPane3.setViewportView(comicsTable);
+		JPanel copyRightPanel = new JPanel();
+		copyRightPanel.setBackground(new Color(38, 38, 38));
+		copyRightPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
 		JEditorPane copyRight = new JEditorPane();
-		copyRight.setBounds(0, 695, 897, 44);
-		searchPublishersPanel.add(copyRight);
 		copyRight.setContentType("text/html");
 		copyRight.setText(
 				"<html><span style='color: #555555;'>Data courtesy of the </span><a href='https://www.comics.org/' "
@@ -326,6 +554,9 @@ public class UserInterface extends JFrame {
 				}
 			}
 		});
+
+		copyRightPanel.add(copyRight);
+		searchPublishersPanel.add(copyRightPanel, BorderLayout.SOUTH);
 
 		changePW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -392,63 +623,21 @@ public class UserInterface extends JFrame {
 		UIManager.put("Table.focusCellHighlightBorder",
 				new BorderUIResource.LineBorderUIResource(new Color(5, 167, 176)));
 
-		// Action Listeners
-		accountButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				c1.show(panel_2, "Account Panel");
-				accountButton.setBackground(new Color(23, 23, 23));
-				userComics.setBackground(new Color(3, 66, 80));
-				searchComics.setBackground(new Color(3, 66, 80));
-				searchPublishers.setBackground(new Color(3, 66, 80));
-			}
-		});
-		userComics.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				c1.show(panel_2, "My Comics Panel");
-				userComics.setBackground(new Color(23, 23, 23));
-				accountButton.setBackground(new Color(3, 66, 80));
-				searchComics.setBackground(new Color(3, 66, 80));
-				searchPublishers.setBackground(new Color(3, 66, 80));
-				UserCollection userCollectionPanel = new UserCollection();
-				myComicsPanel.add(userCollectionPanel);
-
-			}
-		});
-		searchComics.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				c1.show(panel_2, "Search Comics Panel");
-				searchComics.setBackground(new Color(23, 23, 23));
-				userComics.setBackground(new Color(3, 66, 80));
-				accountButton.setBackground(new Color(3, 66, 80));
-				searchPublishers.setBackground(new Color(3, 66, 80));
-			}
-		});
-		searchPublishers.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				c1.show(panel_2, "Search Publisher Panel");
-				searchPublishers.setBackground(new Color(23, 23, 23));
-				accountButton.setBackground(new Color(3, 66, 80));
-				searchComics.setBackground(new Color(3, 66, 80));
-				userComics.setBackground(new Color(3, 66, 80));
-			}
-		});
-
-		signOut.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Login.main(null);
-				dispose();
-			}
-		});
-
 		seriesBackBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				searchSeriesScroll2.setViewportView(null);
-				searchSeriesTable.setVisible(true);
-				searchSeriesScroll.setViewportView(searchSeriesTable);
-				clickSeriesSearchBtn(searchComicsPanel, getSeriesName, searchSeriesScroll, searchSeriesScroll2,
-						searchSeriesTable, searchSeriesTable2, seriesBackBtn);
-				repaint();
-				revalidate();
+				if (currentSeriesScroll.equals("Series Scroll Panel")) {
+					searchSeriesScroll2.setViewportView(null);
+					searchSeriesTable.setVisible(true);
+					searchSeriesScroll.setViewportView(searchSeriesTable);
+					clickSeriesSearchBtn(searchComicsPanel, getSeriesName, searchSeriesScroll, searchSeriesScroll2,
+							searchSeriesTable, searchSeriesTable2, seriesBackBtn);
+					repaint();
+					revalidate();
+					currentSeriesScroll = "false";
+				} else {
+					repaint();
+					revalidate();
+				}
 			}
 		});
 
@@ -475,7 +664,8 @@ public class UserInterface extends JFrame {
 				searchSeriesTable.setVisible(true);
 				searchSeriesTable2.setVisible(false);
 				searchSeriesScroll.setViewportView(searchSeriesTable);
-
+				repaint();
+				revalidate();
 			}
 		});
 
@@ -483,9 +673,11 @@ public class UserInterface extends JFrame {
 		// to table from dbconnection and sets up buttons to move to series
 		publisherSearchBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
 				clickPubSearchBtn(searchPublishersPanel, getPublisherName, scrollPane, scrollPane2, scrollPane3,
 						searchTable, backBtn);
-
+				repaint();
+				revalidate();
 			}
 		});
 
@@ -511,16 +703,16 @@ public class UserInterface extends JFrame {
 	private void clickSeriesSearchTable(JPanel searchComicsPanel, JScrollPane searchSeriesScroll,
 			JScrollPane searchSeriesScroll2, JTable searchSeriesTable, JTable searchSeriesTable2, JButton seriesBackBtn,
 			MouseEvent e) {
+		currentSeriesScroll = "Series Scroll Panel";
+		repaint();
+		revalidate();
 		int row = searchSeriesTable.rowAtPoint(e.getPoint());
 		int col = searchSeriesTable.columnAtPoint(e.getPoint());
 		if (row >= 0 && col == 0) {
 			// Get the value of the 4th column of the selected row
 			String selectedValue = (String) searchSeriesTable.getValueAt(row, 4);
-			System.out.println("selected value = " + selectedValue);
 			LoginInfo.setIdView(selectedValue);
 			LoginInfo.setPublisherID(selectedValue);
-			System.out.println("setIDView " + LoginInfo.getIdView());
-			System.out.println("setPublisherID " + LoginInfo.getPublisherID());
 			List<Map<String, String>> publisherInfo = DBConnection.pullPublisherInfo(selectedValue);
 			if (publisherInfo != null && !publisherInfo.isEmpty()) {
 				Map<String, String> publisherInformation = publisherInfo.get(0);
@@ -541,7 +733,7 @@ public class UserInterface extends JFrame {
 				String publisherName = publisherInformation.get("name");
 				LoginInfo.setPublisherName(publisherName);
 			}
-			searchComicsPanel.add(seriesBackBtn);
+			// searchComicsPanel.add(seriesBackBtn);
 			String selectedValue = (String) searchSeriesTable.getValueAt(row, 3);
 			String selectedName = (String) searchSeriesTable.getValueAt(row, 2);
 			LoginInfo.setPublisherID(pubID);
@@ -610,6 +802,8 @@ public class UserInterface extends JFrame {
 	private void clickSearchTable(JPanel searchPublishersPanel, JScrollPane scrollPane, JScrollPane scrollPane2,
 			JTable searchTable, JTable seriesTable, JButton backBtn, MouseEvent e) {
 		currentScrollPanel = "Series Panel";
+		repaint();
+		revalidate();
 		LoginInfo.setCurrentScrollPanel(currentScrollPanel);
 		int row = searchTable.rowAtPoint(e.getPoint());
 		int col = searchTable.columnAtPoint(e.getPoint());
@@ -626,7 +820,7 @@ public class UserInterface extends JFrame {
 		}
 
 		if (row >= 0 && col == 1) {
-			searchPublishersPanel.add(backBtn);
+			// searchPublishersPanel.add(backBtn);
 			String selectedValue = (String) searchTable.getValueAt(row, 3);
 			String selectedName = (String) searchTable.getValueAt(row, 2);
 			LoginInfo.setPublisherName(selectedName);
@@ -636,6 +830,8 @@ public class UserInterface extends JFrame {
 			// enter starts here
 			scrollPane.setVisible(false);
 			scrollPane2.setVisible(true);
+			repaint();
+			revalidate();
 			List<Map<String, String>> queriedSeries = DBConnection.pullSeries(selectedValue);
 			// initialize the columns and rows of the table here
 			// Set the number of rows in the table based on the number of elements in the
@@ -677,6 +873,8 @@ public class UserInterface extends JFrame {
 	private void clickSeriesTable(JPanel searchPublishersPanel, JScrollPane scrollPane2, JScrollPane scrollPane3,
 			JTable seriesTable, JTable comicsTable, JButton backBtn, MouseEvent e) {
 		currentScrollPanel = "Series Panel";
+		repaint();
+		revalidate();
 		LoginInfo.setCurrentScrollPanel(currentScrollPanel);
 		int row = seriesTable.rowAtPoint(e.getPoint());
 		int col = seriesTable.columnAtPoint(e.getPoint());
@@ -701,6 +899,8 @@ public class UserInterface extends JFrame {
 			// enter to comics
 			scrollPane2.setVisible(false);
 			scrollPane3.setVisible(true);
+			repaint();
+			revalidate();
 			List<Map<String, String>> queriedIssues = DBConnection.pullComics(selectedValue);
 			// initialize the columns and rows of the table here
 			// Set the number of rows in the table based on the number of elements in the
@@ -753,6 +953,8 @@ public class UserInterface extends JFrame {
 
 	private void clickComicsTable(JPanel publisherSearchPanel, JTable seriesTable, JTable comicsTable, JButton backBtn,
 			MouseEvent e) {
+		repaint();
+		revalidate();
 		int row = comicsTable.rowAtPoint(e.getPoint());
 		int col = comicsTable.columnAtPoint(e.getPoint());
 		if (row >= 0 && col == 0) {
@@ -772,6 +974,9 @@ public class UserInterface extends JFrame {
 
 	private void clickComicsTable2(JPanel searchComicsPanel, JTable searchSeriesTable, JTable searchSeriesTable2,
 			JButton seriesBackBtn, MouseEvent e) {
+		currentSeriesScroll = "Series Scroll Panel";
+		repaint();
+		revalidate();
 		int row = searchSeriesTable2.rowAtPoint(e.getPoint());
 		int col = searchSeriesTable2.columnAtPoint(e.getPoint());
 		if (row >= 0 && col == 0) {
@@ -792,6 +997,7 @@ public class UserInterface extends JFrame {
 	private void clickSeriesSearchBtn(JPanel searchComicsPanel, JTextField getSeriesName,
 			JScrollPane searchSeriesScroll, JScrollPane searchSeriesScroll2, JTable searchSeriesTable,
 			JTable searchSeriesTable2, JButton seriesBackBtn) {
+		currentSeriesScroll = "false";
 		searchSeriesScroll.setVisible(true);
 		searchSeriesScroll2.setVisible(false);
 		String searchInfo = getSeriesName.getText();
@@ -802,9 +1008,9 @@ public class UserInterface extends JFrame {
 		int numRows = queriedSeries.size();
 		Object[][] data = new Object[numRows][5];
 		for (int i = 0; i < numRows; i++) {
-			data[i][2] = queriedSeries.get(i).get("name");
 			data[i][0] = "View";
 			data[i][1] = "Enter";
+			data[i][2] = queriedSeries.get(i).get("name");
 			data[i][3] = queriedSeries.get(i).get("id");
 			data[i][4] = queriedSeries.get(i).get("publisher_id");
 		}
@@ -831,12 +1037,14 @@ public class UserInterface extends JFrame {
 				});
 		searchSeriesTable.getColumnModel().getColumn(2).setPreferredWidth(520);
 		Properties.setTableProperties(searchSeriesTable);
-		searchComicsPanel.remove(seriesBackBtn);
+		// searchComicsPanel.remove(seriesBackBtn);
 		searchSeriesScroll.setViewportView(searchSeriesTable);
 	}
 
 	private void clickPubSearchBtn(JPanel publisherSearchPanel, JTextField getPublisherName, JScrollPane scrollPane,
 			JScrollPane scrollPane2, JScrollPane scrollPane3, JTable searchTable, JButton backBtn) {
+		repaint();
+		revalidate();
 		scrollPane.setVisible(true);
 		scrollPane2.setVisible(false);
 		scrollPane3.setVisible(false);
@@ -848,9 +1056,9 @@ public class UserInterface extends JFrame {
 		int numRows = queriedPublisher.size();
 		Object[][] data = new Object[numRows][4];
 		for (int i = 0; i < numRows; i++) {
-			data[i][2] = queriedPublisher.get(i).get("name");
 			data[i][0] = "View";
 			data[i][1] = "Enter";
+			data[i][2] = queriedPublisher.get(i).get("name");
 			data[i][3] = queriedPublisher.get(i).get("id");
 		}
 		searchTable.setModel(new DefaultTableModel(data, new String[] { "Pub Info", "Series", "Publisher", "id" }) {

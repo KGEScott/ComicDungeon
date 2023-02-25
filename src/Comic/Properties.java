@@ -30,6 +30,7 @@ public class Properties extends Login {
 		table.getColumnModel().getColumn(0).setResizable(false);
 		table.getColumnModel().getColumn(1).setResizable(false);
 		table.getColumnModel().getColumn(2).setResizable(false);
+		table.getColumnModel().getColumn(0).setPreferredWidth(45);
 		table.getColumnModel().getColumn(1).setPreferredWidth(45);
 		table.setSelectionBackground(new Color(23, 23, 23));
 		table.setSelectionForeground(Color.WHITE);
@@ -41,7 +42,7 @@ public class Properties extends Login {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setCellSelectionEnabled(true);
 		table.setSurrendersFocusOnKeystroke(true);
-		table.setBounds(2, 1, 738, 500);
+		table.setBounds(0, 0, 800, 900);
 	}
 
 	static void setPanelProperties(JScrollPane scrollPane) {
@@ -49,7 +50,7 @@ public class Properties extends Login {
 		scrollPane.setBorder(emptyBorder);
 		scrollPane.setVisible(false);
 		scrollPane.setBackground(new Color(56, 56, 56));
-		scrollPane.setBounds(79, 143, 739, 535);
+		scrollPane.setBounds(0, 0, 900, 800);
 	}
 
 	static void setMainButtonProperties(JButton button) {

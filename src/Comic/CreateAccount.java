@@ -325,6 +325,7 @@ public class CreateAccount extends JFrame {
 		q3Answer.setColumns(10);
 
 		JTextArea q1TextArea = new JTextArea();
+		q1TextArea.setFocusable(false);
 		q1TextArea.setForeground(new Color(255, 255, 255));
 		q1TextArea.setBackground(new Color(46, 46, 46));
 		q1TextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
@@ -334,6 +335,7 @@ public class CreateAccount extends JFrame {
 		FieldPanel.add(q1TextArea);
 
 		JTextArea q1AnswerTextArea = new JTextArea();
+		q1AnswerTextArea.setFocusable(false);
 		q1AnswerTextArea.setForeground(new Color(255, 255, 255));
 		q1AnswerTextArea.setBackground(new Color(46, 46, 46));
 		q1AnswerTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
@@ -343,6 +345,7 @@ public class CreateAccount extends JFrame {
 		FieldPanel.add(q1AnswerTextArea);
 
 		JTextArea q2TextArea = new JTextArea();
+		q2TextArea.setFocusable(false);
 		q2TextArea.setForeground(new Color(255, 255, 255));
 		q2TextArea.setBackground(new Color(46, 46, 46));
 		q2TextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
@@ -352,6 +355,7 @@ public class CreateAccount extends JFrame {
 		FieldPanel.add(q2TextArea);
 
 		JTextArea q2AnswerTextArea = new JTextArea();
+		q2AnswerTextArea.setFocusable(false);
 		q2AnswerTextArea.setForeground(new Color(255, 255, 255));
 		q2AnswerTextArea.setBackground(new Color(46, 46, 46));
 		q2AnswerTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
@@ -361,6 +365,7 @@ public class CreateAccount extends JFrame {
 		FieldPanel.add(q2AnswerTextArea);
 
 		JTextArea q3TextArea = new JTextArea();
+		q3TextArea.setFocusable(false);
 		q3TextArea.setForeground(new Color(255, 255, 255));
 		q3TextArea.setBackground(new Color(46, 46, 46));
 		q3TextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
@@ -370,6 +375,7 @@ public class CreateAccount extends JFrame {
 		FieldPanel.add(q3TextArea);
 
 		JTextArea q3AnswerTextArea = new JTextArea();
+		q3AnswerTextArea.setFocusable(false);
 		q3AnswerTextArea.setForeground(new Color(255, 255, 255));
 		q3AnswerTextArea.setBackground(new Color(46, 46, 46));
 		q3AnswerTextArea.setFont(new Font("Comic Sans MS", Font.BOLD, 15));
