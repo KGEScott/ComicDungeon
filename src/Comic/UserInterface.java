@@ -3,6 +3,7 @@ package Comic;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -37,6 +38,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -566,8 +568,10 @@ public class UserInterface extends JFrame {
 
 		searchSeriesTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				clickSeriesSearchTable(searchComicsPanel, searchSeriesScroll, searchSeriesScroll2, searchSeriesTable,
 						searchSeriesTable2, seriesBackBtn, e);
+				setCursor(Cursor.getDefaultCursor());
 			}
 		});
 		// series table mouse clickies
@@ -581,13 +585,17 @@ public class UserInterface extends JFrame {
 		// based on where clicked.
 		searchTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				clickSearchTable(searchPublishersPanel, scrollPane, scrollPane2, searchTable, seriesTable, backBtn, e);
+				setCursor(Cursor.getDefaultCursor());
 			}
 		});
 		// series table mouse clickies
 		seriesTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				clickSeriesTable(searchPublishersPanel, scrollPane2, scrollPane3, seriesTable, comicsTable, backBtn, e);
+				setCursor(Cursor.getDefaultCursor());
 			}
 		});
 
@@ -711,6 +719,8 @@ public class UserInterface extends JFrame {
 		if (row >= 0 && col == 0) {
 			// Get the value of the 4th column of the selected row
 			String selectedValue = (String) searchSeriesTable.getValueAt(row, 4);
+			String selectedSeries = (String) searchSeriesTable.getValueAt(row, 3);
+			LoginInfo.setSeriesID(selectedSeries);
 			LoginInfo.setIdView(selectedValue);
 			LoginInfo.setPublisherID(selectedValue);
 			List<Map<String, String>> publisherInfo = DBConnection.pullPublisherInfo(selectedValue);
@@ -881,8 +891,7 @@ public class UserInterface extends JFrame {
 		if (row >= 0 && col == 0) {
 			// Get the value of the 4th column of the selected row
 			String selectedValue = (String) seriesTable.getValueAt(row, 3);
-			LoginInfo.setIdView(selectedValue);
-			DBConnection.pullPublisherInfo(selectedValue);
+			LoginInfo.setSeriesID(selectedValue);
 			// view start here
 			String selectedName = (String) seriesTable.getValueAt(row, 2);
 			seriesName = selectedName;
@@ -955,6 +964,7 @@ public class UserInterface extends JFrame {
 			MouseEvent e) {
 		repaint();
 		revalidate();
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		int row = comicsTable.rowAtPoint(e.getPoint());
 		int col = comicsTable.columnAtPoint(e.getPoint());
 		if (row >= 0 && col == 0) {
@@ -967,8 +977,23 @@ public class UserInterface extends JFrame {
 			String selectedIssue = (String) comicsTable.getValueAt(row, 2);
 			comicsIssue = selectedIssue;
 			LoginInfo.setComicsIssue(comicsIssue);
-			ComicInfo.main(null);
 
+			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+				@Override
+				protected Void doInBackground() throws Exception {
+					// Execute the ComicInfo window on a separate thread
+					ComicInfo.main(null);
+					return null;
+				}
+
+				@Override
+				protected void done() {
+					// Set the cursor back to the default cursor after the ComicInfo window is
+					// loaded
+					setCursor(Cursor.getDefaultCursor());
+				}
+			};
+			worker.execute();
 		}
 	}
 
@@ -977,6 +1002,7 @@ public class UserInterface extends JFrame {
 		currentSeriesScroll = "Series Scroll Panel";
 		repaint();
 		revalidate();
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		int row = searchSeriesTable2.rowAtPoint(e.getPoint());
 		int col = searchSeriesTable2.columnAtPoint(e.getPoint());
 		if (row >= 0 && col == 0) {
@@ -989,14 +1015,30 @@ public class UserInterface extends JFrame {
 			String selectedIssue = (String) searchSeriesTable2.getValueAt(row, 2);
 			comicsIssue = selectedIssue;
 			LoginInfo.setComicsIssue(comicsIssue);
-			ComicInfo.main(null);
 
+			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+				@Override
+				protected Void doInBackground() throws Exception {
+					// Execute the ComicInfo window on a separate thread
+					ComicInfo.main(null);
+					return null;
+				}
+
+				@Override
+				protected void done() {
+					// Set the cursor back to the default cursor after the ComicInfo window is
+					// loaded
+					setCursor(Cursor.getDefaultCursor());
+				}
+			};
+			worker.execute();
 		}
 	}
 
 	private void clickSeriesSearchBtn(JPanel searchComicsPanel, JTextField getSeriesName,
 			JScrollPane searchSeriesScroll, JScrollPane searchSeriesScroll2, JTable searchSeriesTable,
 			JTable searchSeriesTable2, JButton seriesBackBtn) {
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		currentSeriesScroll = "false";
 		searchSeriesScroll.setVisible(true);
 		searchSeriesScroll2.setVisible(false);
@@ -1035,6 +1077,7 @@ public class UserInterface extends JFrame {
 						return columnEditables[column];
 					}
 				});
+		setCursor(Cursor.getDefaultCursor());
 		searchSeriesTable.getColumnModel().getColumn(2).setPreferredWidth(520);
 		Properties.setTableProperties(searchSeriesTable);
 		// searchComicsPanel.remove(seriesBackBtn);
@@ -1045,6 +1088,7 @@ public class UserInterface extends JFrame {
 			JScrollPane scrollPane2, JScrollPane scrollPane3, JTable searchTable, JButton backBtn) {
 		repaint();
 		revalidate();
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		scrollPane.setVisible(true);
 		scrollPane2.setVisible(false);
 		scrollPane3.setVisible(false);
@@ -1080,6 +1124,7 @@ public class UserInterface extends JFrame {
 				return columnEditables[column];
 			}
 		});
+		setCursor(Cursor.getDefaultCursor());
 		searchTable.getColumnModel().getColumn(2).setPreferredWidth(520);
 		Properties.setTableProperties(searchTable);
 		publisherSearchPanel.remove(backBtn);

@@ -3,6 +3,7 @@ package Comic;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -39,6 +40,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -222,6 +224,7 @@ public class UserCollection extends JPanel {
 					}
 					seriesLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent e) {
+							setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 							comicsPanel.removeAll();
 							// Loop through collection to find comics for selected series
 							Collections.sort(comics, new Comparator<Map<String, String>>() {
@@ -253,11 +256,29 @@ public class UserCollection extends JPanel {
 									coverLabel.setBorder(new LineBorder(new Color(38, 38, 38), 2, true));
 									comicPanel.add(coverLabel);
 									coverLabel.addMouseListener(new MouseAdapter() {
+										@Override
 										public void mouseClicked(MouseEvent e) {
-											LoginInfo.setComicsID(comic.get("comic_id"));
-											LoginInfo.setSeriesName(comic.get("series_name"));
-											LoginInfo.setPublisherName(comic.get("publisher_name"));
-											ComicInfo.main(null);
+											setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+											SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+												@Override
+												protected Void doInBackground() throws Exception {
+													// Execute the ComicInfo window on a separate thread
+													LoginInfo.setComicsID(comic.get("comic_id"));
+													LoginInfo.setSeriesName(comic.get("series_name"));
+													LoginInfo.setPublisherName(comic.get("publisher_name"));
+													ComicInfo.main(null);
+													return null;
+												}
+
+												@Override
+												protected void done() {
+													// Set the cursor back to the default cursor after the ComicInfo
+													// window is loaded
+													setCursor(Cursor.getDefaultCursor());
+												}
+											};
+											worker.execute();
 										}
 									});
 								} else {
@@ -276,11 +297,29 @@ public class UserCollection extends JPanel {
 									noImagePanel.setAlignmentX(Component.LEFT_ALIGNMENT); // set alignment to left
 									comicPanel.add(noImagePanel);
 									noImagePanel.addMouseListener(new MouseAdapter() {
+										@Override
 										public void mouseClicked(MouseEvent e) {
-											LoginInfo.setComicsID(comic.get("comic_id"));
-											LoginInfo.setSeriesName(comic.get("series_name"));
-											LoginInfo.setPublisherName(comic.get("publisher_name"));
-											ComicInfo.main(null);
+											setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+											SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+												@Override
+												protected Void doInBackground() throws Exception {
+													// Execute the ComicInfo window on a separate thread
+													LoginInfo.setComicsID(comic.get("comic_id"));
+													LoginInfo.setSeriesName(comic.get("series_name"));
+													LoginInfo.setPublisherName(comic.get("publisher_name"));
+													ComicInfo.main(null);
+													return null;
+												}
+
+												@Override
+												protected void done() {
+													// Set the cursor back to the default cursor after the ComicInfo
+													// window is loaded
+													setCursor(Cursor.getDefaultCursor());
+												}
+											};
+											worker.execute();
 										}
 									});
 								}
@@ -307,6 +346,7 @@ public class UserCollection extends JPanel {
 								comicPanel.setBackground(new Color(128, 128, 128)); // set panel background color
 								comicsPanel.add(comicPanel);
 							}
+							setCursor(Cursor.getDefaultCursor());
 							// Refresh the panel to reflect the changes
 							myCollection.revalidate();
 							myCollection.repaint();

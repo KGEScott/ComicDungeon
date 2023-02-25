@@ -2,6 +2,7 @@ package Comic;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Image;
@@ -181,9 +182,11 @@ public class Login extends JFrame {
 
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				// Validate the user name input
 				String userName = userNameField.getText();
 				if (userName == null || !userName.matches("^[a-zA-Z0-9]{4,20}$")) {
+					setCursor(Cursor.getDefaultCursor());
 					JOptionPane.showMessageDialog(loginUI,
 							"User name must be 4-20 characters and contain only letters and numbers.");
 					return;
@@ -193,6 +196,7 @@ public class Login extends JFrame {
 				String userPass = new String(passwordField.getPassword()); // get the password from the password field
 
 				if (userPass == null || userPass.length() == 0) {
+					setCursor(Cursor.getDefaultCursor());
 					JOptionPane.showMessageDialog(loginUI, "Password is required.");
 					return;
 				}
@@ -203,8 +207,10 @@ public class Login extends JFrame {
 
 				// Call the ButtonActionsSubmit method to perform the login actions
 				if (ButtonActions.ButtonActionsSubmit() == true) { // no need to compare with true
+					setCursor(Cursor.getDefaultCursor());
 					dispose();
 				} else {
+					setCursor(Cursor.getDefaultCursor());
 					passwordField.setText("");
 				}
 			}
