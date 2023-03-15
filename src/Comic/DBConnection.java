@@ -102,19 +102,18 @@ public class DBConnection {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			String month = LoginInfo.getMonth();
 			int monthNum = month.equals("Jan") ? 1
-					: month.equals("Feb") ? 2
-							: month.equals("Mar") ? 3
-									: month.equals("Apr") ? 4
-											: month.equals("May") ? 5
-													: month.equals("Jun") ? 6
-															: month.equals("Jul") ? 7
-																	: month.equals("Aug") ? 8
-																			: month.equals("Sep") ? 9
-																					: month.equals("Oct") ? 10
-																							: month.equals("Nov") ? 11
-																									: month.equals(
-																											"Dec") ? 12
-																													: 0;
+				: month.equals("Feb") ? 2
+				: month.equals("Mar") ? 3
+				: month.equals("Apr") ? 4
+				: month.equals("May") ? 5
+				: month.equals("Jun") ? 6
+				: month.equals("Jul") ? 7
+				: month.equals("Aug") ? 8
+				: month.equals("Sep") ? 9
+				: month.equals("Oct") ? 10
+				: month.equals("Nov") ? 11
+				: month.equals("Dec") ? 12
+				: 0;
 			String date = userYear + "-" + (monthNum < 10 ? "0" : "") + monthNum + "-"
 					+ (Integer.parseInt(userDay) < 10 ? "0" : "") + userDay;
 			String sql = "INSERT INTO user (userName, firstName, lastName, email, DoB, securityQ1, securityQ2, securityQ3, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
